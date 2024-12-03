@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.manual
 
-import com.outoftheboxrobotics.photoncore.Photon
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -13,7 +13,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 @TeleOp
-@Photon
+@Disabled
 class Barebones : LinearOpMode() {
     @Throws(InterruptedException::class)
     override fun runOpMode() {

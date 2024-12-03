@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.utils
 
 class Detector {
     private var current = false
-    var previous = false
+    private var previous = false
 
     fun update(value: Boolean)  {
         previous=current

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.roadrunner.Pose2d
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -33,7 +34,8 @@ class TeleopV0 : LinearOpMode() {
         val frontLeft = CachingDcMotorEx(hardwareMap.dcMotor["frontLeft"] as DcMotorEx)
         val frontRight = CachingDcMotorEx(hardwareMap.dcMotor["frontRight"] as DcMotorEx)
 
-        val otos = hardwareMap[SparkFunOTOS::class.java, "sensor_otos"]
+        val beginPose = Pose2d(0.0, 0.0, 0.0)
+        val drive = SparkFunOTOSDrive(hardwareMap, beginPose)
 
         frontLeft.direction = DcMotorSimple.Direction.REVERSE
         backLeft.direction = DcMotorSimple.Direction.REVERSE
@@ -42,16 +44,6 @@ class TeleopV0 : LinearOpMode() {
         frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        otos.linearUnit = DistanceUnit.INCH
-        otos.angularUnit = AngleUnit.RADIANS
-        otos.linearScalar = 0.983
-        otos.angularScalar = 0.9898
-        telemetry.addLine("Calibrating OTOS")
-        telemetry.update()
-        otos.calibrateImu(1000, true)
-        otos.position = SparkFunOTOS.Pose2D(0.0,0.0,0.0)
-        telemetry.addLine("Calibrated OTOS")
-        telemetry.update()
 
         val horz = hardwareMap.dcMotor["horz"]
         horz.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -61,6 +53,7 @@ class TeleopV0 : LinearOpMode() {
         waitForStart()
         while (opModeIsActive()) {
             scoring.update()
+            drive.updatePoseEstimate()
             val y = -gamepad1.left_stick_y.toDouble() // Remember, Y stick value is reversed
             val x = -gamepad1.left_stick_x * 1.1 // Counteract imperfect strafing
             val rx = -gamepad1.right_stick_x.toDouble()
@@ -68,7 +61,7 @@ class TeleopV0 : LinearOpMode() {
             // This ensures all the powers maintain the same ratio,
             // but only if at least one is out of the range [-1, 1]
 
-            val botHeading = -otos.position.h
+            val botHeading = -drive.pose.heading.toDouble()
 
             val rotX = x * cos(-botHeading) - y * sin(-botHeading)
             val rotY = x * sin(-botHeading) + y * cos(-botHeading)
@@ -81,18 +74,18 @@ class TeleopV0 : LinearOpMode() {
                 mult = 1.0
             }
             if (DT_ACTIVE) {
-                frontLeft.power = (y + x + rx) / denominator * mult
-                backLeft.power = (y - x + rx) / denominator * mult
-                frontRight.power = (y - x - rx) / denominator * mult
-                backRight.power = (y + x - rx) / denominator * mult
+                frontLeft.power = (rotY + rotX + rx) / denominator * mult
+                backLeft.power = (rotY - rotX + rx) / denominator * mult
+                frontRight.power = (rotY - rotX - rx) / denominator * mult
+                backRight.power = (rotY + rotX - rx) / denominator * mult
             } else {
                 frontLeft.power = 0.0
                 backLeft.power = 0.0
                 frontRight.power = 0.0
                 backRight.power = 0.0
             }
-            if (gamepad2.dpad_down) {
-                otos.position = SparkFunOTOS.Pose2D(0.0,0.0,0.0)
+            if (gamepad1.back) {
+                drive.pose = Pose2d(0.0, 0.0, 0.0)
             }
 
             telemetry.addData("Time", System.currentTimeMillis() - lastTime)

@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.manual
 
 import com.arcrobotics.ftclib.controller.PIDController
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import kotlin.math.abs
 
 @TeleOp
+@Disabled
 class HorzTest : LinearOpMode() {
     override fun runOpMode() {
         val horz = hardwareMap.dcMotor["horz"]

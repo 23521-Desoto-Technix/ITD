@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.manual
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 
 @TeleOp
 class ServoTest : LinearOpMode() {
     override fun runOpMode() {
-        val servo0 = hardwareMap.servo.get("CV4B0O")
-        val servo1 = hardwareMap.servo.get("CV4B1O")
-        //val analog = hardwareMap.analogInput.get("CV4B0IA")
+        val servo0 = hardwareMap.servo.get("clawO")
+        val servo1 = hardwareMap.servo.get("clawI")
         waitForStart()
         while (opModeIsActive()) {
             servo0.position = (gamepad1.left_stick_y + 1.0) / 2

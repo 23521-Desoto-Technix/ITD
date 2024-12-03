@@ -11,6 +11,7 @@ import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx
 import dev.frozenmilk.dairy.cachinghardware.CachingServo
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.ServoSwap
 import org.firstinspires.ftc.teamcode.vision.BlockDetectorProcessor
 import org.firstinspires.ftc.vision.VisionPortal
@@ -25,14 +26,14 @@ class Scoring(
     private val gamepad1: Gamepad,
     private val gamepad2: Gamepad) {
 
-    var readyForTransfer = false
-
     private val timeSinceStateChange = ElapsedTime()
     private val timer = ElapsedTime()
 
+    private val inspection = false
+
     private val wristI: CachingServo = CachingServo(hardwareMap.servo["wristI"])
     private val clawI: CachingServo = CachingServo(hardwareMap.servo["clawI"])
-    private val clawISwap = ServoSwap(clawI, 1.0, 0.7, true)
+    private val clawISwap = ServoSwap(clawI, 1.0, 0.73, true)
 
     private val CV4B0I = hardwareMap.servo["CV4B0I"]
     private val CV4B1I = hardwareMap.servo["CV4B1I"]
@@ -42,7 +43,7 @@ class Scoring(
 
     private val clawO: CachingServo = CachingServo(hardwareMap.servo["clawO"])
     private val wristO = hardwareMap.servo["wristO"]
-    private val clawOSwap = ServoSwap(clawO, 0.35, 0.64, true)
+    private val clawOSwap = ServoSwap(clawO, 0.3, 0.67, true)
 
     val blockDetector = BlockDetectorProcessor(telemetry)
     private var wristPosition = 0.5
@@ -59,7 +60,8 @@ class Scoring(
         TRANSFERRED,
         GRABBING_SPECIMEN,
         GRABBED_SPECIMEN,
-        EXPANDED
+        EXPANDED,
+        HANGING
     }
     val horz = CachingDcMotorEx(hardwareMap.dcMotor["horz"] as DcMotorEx)
     val vert1 = CachingDcMotorEx(hardwareMap.dcMotor["vert1"] as DcMotorEx)
@@ -74,6 +76,8 @@ class Scoring(
     init {
         horz.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         horz.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        vert0.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        vert0.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         vert0.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         vert1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         horz.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -81,13 +85,21 @@ class Scoring(
         vert0.direction = DcMotorSimple.Direction.FORWARD
     }
 
+    private val randomDetector = Detector()
+
     fun update() {
 
         val block = blockDetector.closestBlock
         val angle = blockDetector.angle
         val size = blockDetector.size
-        if (gamepad2.touchpad_finger_1 && gamepad1.touchpad_finger_1) {
-            state = State.EXPANDED
+        randomDetector.update(gamepad2.ps)
+        if (randomDetector.risingEdge() && state != State.HANGING && state != State.EXPANDED) {
+            state = if (inspection) {
+                State.EXPANDED
+            } else {
+                State.HANGING
+            }
+            timeSinceStateChange.reset()
         }
         if (abs(gamepad2.right_trigger) < 0.1) {
             if (abs(horz.currentPosition.toDouble() - target) > 5) {
@@ -126,7 +138,11 @@ class Scoring(
             State.GRABBING_SAMPLE -> {
                 CV4B0O.position = 0.6
                 CV4B1O.position = 0.36
-                CV4B1I.position = 0.05
+                if (gamepad2.triangle) {
+                    CV4B1I.position = 0.3
+                } else {
+                    CV4B1I.position = 0.05
+                }
                 clawOSwap.set(false)
                 target = 200.0
                 var deltaW = 0.0
@@ -149,7 +165,7 @@ class Scoring(
                     timer.reset()
                     CV4B0I.position = 0.85
                 } else {
-                    CV4B0I.position = 0.6
+                    CV4B0I.position = 0.63
                 }
 
                 if (gamepad2.square) {
@@ -159,7 +175,7 @@ class Scoring(
                 //wrist.position = (gamepad2.left_stick_x.toDouble() + 1.0) / 2
             }
             State.GRABBED_SAMPLE -> {
-                if (timeSinceStateChange.seconds() > 0.5) {
+                if (timeSinceStateChange.seconds() > 0.2) {
                     target = 0.0
                 }
                 if (gamepad2.start) {
@@ -237,6 +253,9 @@ class Scoring(
             }
 
             State.EXPANDED -> {
+                if (randomDetector.risingEdge() && timeSinceStateChange.seconds() > 0.5) {
+                    state = State.IDLE
+                }
                 CV4B0O.position = 0.0
                 CV4B1O.position = 0.9
 
@@ -245,6 +264,19 @@ class Scoring(
 
                 target = 200.0
             }
+            State.HANGING -> {
+                if (randomDetector.risingEdge() && timeSinceStateChange.seconds() > 0.5) {
+                    state = State.IDLE
+                }
+                target = 50.0
+                vert0.power = 0.35
+                vert1.power = 0.35
+                CV4B0I.position = 0.0
+                CV4B1I.position = 0.8
+
+                CV4B0O.position = 0.6
+                CV4B1O.position = 0.34
+            }
         }
         telemetry.addData("State", state)
         telemetry.addData("Wrist Position", wristPosition)
@@ -252,10 +284,19 @@ class Scoring(
         telemetry.addData("Block Size", size)
         telemetry.addData("Time", timeSinceStateChange.seconds())
         telemetry.addData("Horz Encoder", horz.currentPosition)
-        vert0.power = gamepad2.right_stick_y.toDouble()
-        vert1.power = gamepad2.right_stick_y.toDouble()
+        if (state != State.HANGING) {
+            if (vert0.currentPosition > 20) {
+                vert0.power = -0.2
+                vert1.power = -0.2
+            } else {
+                vert0.power = gamepad2.right_stick_y.toDouble()
+                vert1.power = gamepad2.right_stick_y.toDouble()
+            }
+        }
         telemetry.addData("Vertical Power", vert0.power)
+        telemetry.addData("Vert pos", vert0.currentPosition)
         telemetry.addData("Horz Power", horz.power)
+        telemetry.addData("Time since state change", timeSinceStateChange.seconds())
         //telemetry.addData("FPS", visionPortal.fps)
 
     }
