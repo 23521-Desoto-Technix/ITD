@@ -26,14 +26,16 @@ internal class Outtake(hardwareMap: HardwareMap) {
     }
 
     private val PID = PIDController(0.01, 0.0, 0.0)
-    fun down(): Action {
+    fun down(finish: Boolean = false): Action {
         return object: Action {
             private val target = 0.0
 
             override fun run(packet: TelemetryPacket): Boolean {
-                CV4B0O.position = 0.0
-                CV4B1O.position = 0.9
-                wristO.position = 0.98
+                if (!finish) {
+                    CV4B0O.position = 0.0
+                    CV4B1O.position = 0.9
+                    wristO.position = 0.98
+                }
                 vert0.power = PID.calculate(vert0.currentPosition.toDouble(), target)
                 vert1.power = PID.calculate(vert0.currentPosition.toDouble(), target)
                 packet.put("position", vert0.currentPosition.toDouble())
