@@ -5,8 +5,9 @@ import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.util.ElapsedTime
 
-internal class Outtake(hardwareMap: HardwareMap) {
+class Outtake(hardwareMap: HardwareMap) {
     private val vert0: DcMotor = hardwareMap.dcMotor["vert0"]
     private val vert1: DcMotor = hardwareMap.dcMotor["vert1"]
 
@@ -66,6 +67,7 @@ internal class Outtake(hardwareMap: HardwareMap) {
                 vert0.power = PID.calculate(vert0.currentPosition.toDouble(), target)
                 vert1.power = PID.calculate(vert0.currentPosition.toDouble(), target)
                 packet.put("position", vert0.currentPosition.toDouble())
+                packet.put("target", target)
                 if (vert0.currentPosition.toDouble() >= target-10) {
                     vert0.power=0.1
                     vert1.power=0.1

@@ -214,7 +214,6 @@ class Scoring(
             State.IDLE -> {
                 CV4B0I.position = 0.0
                 CV4B1I.position = 0.8
-                CV4B1I.position = 0.8
                 wristO.position = 0.41
                 if (timeSinceStateChange.seconds() > 0.2) {
                     CV4B0O.position = 0.6
@@ -245,7 +244,7 @@ class Scoring(
                     wristO.position = 0.98
                 }
                 //CV4B0O.position = 0.196
-                //CV4B1O.position = 0.65
+                //CV4B1O.position = 0.6
                 if (gamepad2.left_bumper && timeSinceStateChange.seconds() > 2.0) {
                     state = State.IDLE
                     timeSinceStateChange.reset()
@@ -285,13 +284,19 @@ class Scoring(
         telemetry.addData("Time", timeSinceStateChange.seconds())
         telemetry.addData("Horz Encoder", horz.currentPosition)
         if (state != State.HANGING) {
-            if (vert0.currentPosition > 20) {
+            if (vert0.currentPosition > 20 && !gamepad1.dpad_down) {
                 vert0.power = -0.2
                 vert1.power = -0.2
             } else {
                 vert0.power = gamepad2.right_stick_y.toDouble()
                 vert1.power = gamepad2.right_stick_y.toDouble()
             }
+        }
+        if (gamepad1.dpad_right) {
+            vert0.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            vert1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            vert0.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            vert1.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         }
         telemetry.addData("Vertical Power", vert0.power)
         telemetry.addData("Vert pos", vert0.currentPosition)

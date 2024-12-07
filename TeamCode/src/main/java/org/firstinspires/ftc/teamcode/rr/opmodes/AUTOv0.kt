@@ -74,7 +74,7 @@ class AUTOv0 : LinearOpMode() {
             drive.actionBuilder(drive.pose)
                 .afterTime(0.3, outtake.up())
                 .afterTime(0.6, outtake.flip())
-                .splineToLinearHeading(Pose2d(28.0, 7.0, Math.toRadians(180.0)), Math.toRadians(0.0))
+                .splineToLinearHeading(Pose2d(30.0, 7.0, Math.toRadians(180.0)), Math.toRadians(0.0))
                 .build()
         )
         runBlocking(outtake.upMore())
