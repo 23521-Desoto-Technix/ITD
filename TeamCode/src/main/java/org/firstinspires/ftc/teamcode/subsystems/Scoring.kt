@@ -136,8 +136,8 @@ class Scoring(
         }
         when (state) {
             State.GRABBING_SAMPLE -> {
-                CV4B0O.position = 0.6
-                CV4B1O.position = 0.36
+                CV4B0O.position = 0.55
+                CV4B1O.position = 0.3
                 if (gamepad2.triangle) {
                     CV4B1I.position = 0.3
                 } else {
@@ -234,11 +234,7 @@ class Scoring(
                 } else {
                     wristO.position = 0.41
                 }
-                if (gamepad1.left_bumper || gamepad2.dpad_up) {
-                    CV4B1O.position = 1.0
-                } else {
-                    CV4B1O.position = 0.9
-                }
+                CV4B1O.position = 0.93
             }
             State.GRABBED_SPECIMEN -> {
                 if (timeSinceStateChange.seconds() > 1.5) {
@@ -285,13 +281,19 @@ class Scoring(
         telemetry.addData("Time", timeSinceStateChange.seconds())
         telemetry.addData("Horz Encoder", horz.currentPosition)
         if (state != State.HANGING) {
-            if (vert0.currentPosition > 20) {
+            if (vert0.currentPosition > 20 && !gamepad1.dpad_down) {
                 vert0.power = -0.2
                 vert1.power = -0.2
             } else {
                 vert0.power = gamepad2.right_stick_y.toDouble()
                 vert1.power = gamepad2.right_stick_y.toDouble()
             }
+        }
+        if (gamepad1.dpad_right) {
+            vert0.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            vert1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            vert0.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            vert1.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         }
         telemetry.addData("Vertical Power", vert0.power)
         telemetry.addData("Vert pos", vert0.currentPosition)

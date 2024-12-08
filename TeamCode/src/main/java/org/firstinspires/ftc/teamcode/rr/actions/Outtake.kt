@@ -32,7 +32,7 @@ internal class Outtake(hardwareMap: HardwareMap) {
 
             override fun run(packet: TelemetryPacket): Boolean {
                 CV4B0O.position = 0.0
-                CV4B1O.position = 0.9
+                CV4B1O.position = 0.93
                 wristO.position = 0.98
                 vert0.power = PID.calculate(vert0.currentPosition.toDouble(), target)
                 vert1.power = PID.calculate(vert0.currentPosition.toDouble(), target)

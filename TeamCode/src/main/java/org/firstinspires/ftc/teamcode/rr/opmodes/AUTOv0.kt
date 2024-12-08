@@ -25,20 +25,20 @@ class AUTOv0 : LinearOpMode() {
                 .afterTime(0.2, outtake.up())
                 .splineToLinearHeading(Pose2d(22.0, -2.0, Math.toRadians(180.0)), Math.toRadians(0.0))
                 .splineToLinearHeading(Pose2d(26.0, -2.0, Math.toRadians(180.0)), Math.toRadians(0.0))
-                .build()
+                .build()''
         )
         runBlocking(outtake.upMore())
         runBlocking(
             drive.actionBuilder(Pose2d(26.0, 0.0, Math.toRadians(180.0)))
                 .afterTime(0.2, outtake.down())
-                .splineToLinearHeading(Pose2d(12.0, -35.0, Math.toRadians(0.0)), Math.toRadians(180.0))
+                .splineToLinearHeading(Pose2d(11.0, -35.0, Math.toRadians(0.0)), Math.toRadians(180.0))
                 .build()
         )
         runBlocking(outtake.flip(false))
         runBlocking(SleepAction(1.0))
         runBlocking(
             drive.actionBuilder(drive.pose)
-                .splineToLinearHeading(Pose2d(6.0, -35.0, Math.toRadians(0.0)), Math.toRadians(180.0))
+                .splineToLinearHeading(Pose2d(0.0, -35.0, Math.toRadians(0.0)), Math.toRadians(180.0))
                 .build()
         )
         runBlocking(outtake.grab())
