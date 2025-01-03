@@ -60,10 +60,10 @@ public class SampleAlign extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        wrist = hardwareMap.get(ServoImplEx.class, "wrist");
+        wrist = hardwareMap.get(ServoImplEx.class, "wristI");
         BlockDetectorProcessor processor = new BlockDetectorProcessor(telemetry);
         final CameraStreamProcessor streamer = new CameraStreamProcessor();
-        AnalogInput analogInput = hardwareMap.get(AnalogInput.class, "wristanalog");
+        //AnalogInput analogInput = hardwareMap.get(AnalogInput.class, "wristanalog");
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .addProcessor(processor)
@@ -90,9 +90,18 @@ public class SampleAlign extends LinearOpMode {
                     //telemetry.addData("Delta W", deltaw);
                 }
             }
+            if (gamepad1.dpad_up) {
+                processor.detectionMode = BlockDetectorProcessor.DetectionMode.YELLOW_ONLY;
+            } else if (gamepad1.dpad_down) {
+                processor.detectionMode = BlockDetectorProcessor.DetectionMode.ALL_COLORS;
+            } else if (gamepad1.dpad_left) {
+                processor.detectionMode = BlockDetectorProcessor.DetectionMode.YELLOW_BLUE;
+            } else if (gamepad1.dpad_right) {
+                processor.detectionMode = BlockDetectorProcessor.DetectionMode.YELLOW_RED;
+            }
             wrist.setPosition(wristpos);
             processor.updatetelemetry();
-
+            telemetry.addData("Mode", processor.detectionMode);
             sleep(20);
         }
     }

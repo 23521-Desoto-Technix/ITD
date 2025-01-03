@@ -21,14 +21,14 @@ public class BlockDetectorProcessor implements VisionProcessor {
     private RotatedRect closestBlock;
     private Double angle;
 
-    private enum DetectionMode {
+    public enum DetectionMode {
         ALL_COLORS,
         YELLOW_BLUE,
         YELLOW_RED,
         YELLOW_ONLY,
     }
 
-    private DetectionMode detectionMode = DetectionMode.ALL_COLORS;
+    public DetectionMode detectionMode = DetectionMode.ALL_COLORS;
 
     private Mat hsvImage;
     private Mat redMask1;
@@ -134,14 +134,14 @@ public class BlockDetectorProcessor implements VisionProcessor {
         Imgproc.cvtColor(image, hsvImage, Imgproc.COLOR_BGR2HSV);
 
         // Define color ranges for red, yellow, and blue blocks (adjust if needed)
-        Scalar lowerRed1 = new Scalar(0.0, 100.0, 100.0);
+        Scalar lowerRed1 = new Scalar(0.0, 0.0, 0.0);
         Scalar upperRed1 = new Scalar(20.0, 255.0, 255.0);
-        Scalar lowerRed2 = new Scalar(150.0, 100.0, 100.0);
+        Scalar lowerRed2 = new Scalar(150.0, 0.0, 0.0);
         Scalar upperRed2 = new Scalar(179.0, 255.0, 255.0);
-        Scalar lowerYellow = new Scalar(22.0, 100.0, 100.0);
-        Scalar upperYellow = new Scalar(38.0, 255.0, 255.0);
-        Scalar lowerBlue = new Scalar(100.0, 100.0, 100.0);
-        Scalar upperBlue = new Scalar(120.0, 255.0, 255.0);
+        Scalar lowerYellow = new Scalar(20.0, 0.0, 0.0);
+        Scalar upperYellow = new Scalar(45.0, 255.0, 255.0);
+        Scalar lowerBlue = new Scalar(90.0, 0.0, 0.0);
+        Scalar upperBlue = new Scalar(130.0, 255.0, 255.0);
 
         Mat redMask1 = new Mat();
         Mat redMask2 = new Mat();
@@ -226,10 +226,6 @@ public class BlockDetectorProcessor implements VisionProcessor {
         }
 
         return new Pair<>(closestBlock, angle);
-    }
-
-    public void setDetectionMode(DetectionMode mode) {
-        detectionMode = mode;
     }
 
     private void drawOutlineAndAngle(Canvas canvas, RotatedRect block, Double angle, float s) {

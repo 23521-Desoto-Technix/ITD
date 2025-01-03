@@ -25,7 +25,7 @@ class AUTOv0 : LinearOpMode() {
                 .afterTime(0.2, outtake.up())
                 .splineToLinearHeading(Pose2d(22.0, -2.0, Math.toRadians(180.0)), Math.toRadians(0.0))
                 .splineToLinearHeading(Pose2d(26.0, -2.0, Math.toRadians(180.0)), Math.toRadians(0.0))
-                .build()''
+                .build()
         )
         runBlocking(outtake.upMore())
         runBlocking(
