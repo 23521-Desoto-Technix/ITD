@@ -21,8 +21,8 @@ class sampleAuto : LinearOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
-        val scorePose = Pose(36.5, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(20.0, 25.0, Math.toRadians(0.0))
+        val scorePose = Pose(39.0, 66.0, Math.toRadians(0.0))
+        val pickupPose = Pose(11.1, 13.0, Math.toRadians(0.0))
         follower.setStartingPose(startPose)
 
         val intake = Intake(hardwareMap)
@@ -73,15 +73,40 @@ class sampleAuto : LinearOpMode() {
             .addPath(
                     BezierLine(
                         Point(55.0, 35.0, Point.CARTESIAN),
-                        Point(pickupPose)
+                        Point(20.0, 25.0)
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .addPath(
+                BezierCurve(
+                    Point(20.000, 25.000, Point.CARTESIAN),
+                    Point(55.000, 25.000, Point.CARTESIAN),
+                    Point(55.000, 13.000, Point.CARTESIAN)
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .addPath(
+                BezierCurve(
+                    Point(55.000, 13.000, Point.CARTESIAN),
+                    Point(pickupPose),
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .build()
-        claw.position = 0.58
+        val score1 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Point(pickupPose),
+                    Point(11.5, 70.0, Point.CARTESIAN),
+                    Point(37.5, 70.0, Point.CARTESIAN)
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .build()
+        claw.position = 0.55
         waitForStart()
         follower.followPath(startToScore, true)
-        vslides.setSetpoint(-36_000.0)
+        vslides.setSetpoint(-35_000.0)
         val timer = ElapsedTime()
 
         while (!isStopRequested && follower.isBusy) {
@@ -100,7 +125,9 @@ class sampleAuto : LinearOpMode() {
         claw.position = 0.85
         vslides.setSetpoint(-0.0)
         follower.followPath(push1, true)
-        while (!isStopRequested && follower.pose.x > 15.0) {
+        outtake.update(Outtake.state.INTAKING)
+        timer.reset()
+        while (!isStopRequested && follower.isBusy) {
             vslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
@@ -108,6 +135,32 @@ class sampleAuto : LinearOpMode() {
             telemetry.addData("Heading", follower.pose.heading)
             telemetry.update()
         }
+        claw.position = 0.55
+        timer.reset()
+        while (timer.seconds() < 0.1) {
+            vslides.update()
+        }
+        vslides.setSetpoint(-35_000.0)
+        while (timer.seconds() < 0.3) {
+            vslides.update()
+        }
+        outtake.update(Outtake.state.GRABBED)
+        follower.followPath(score1, true)
+        while (!isStopRequested && follower.isBusy) {
+            vslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        timer.reset()
+        vslides.setSetpoint(-60_000.0)
+        while (timer.seconds() < 0.5) {
+            vslides.update()
+        }
+        claw.position = 0.85
+        vslides.setSetpoint(-0.0)
     }
 
 }
