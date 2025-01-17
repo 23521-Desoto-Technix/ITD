@@ -149,10 +149,10 @@ class v2 : LinearOpMode() {
             } else {
                 TODO()
             }
-            if (gamepad2.left_trigger > 0.9) {
+            if (gamepad2.left_trigger > 0.9 && slideMode == SlideMode.MANUAL) {
                 vslides.resetEncoder()
             }
-            if (gamepad2.right_trigger > 0.9) {
+            if (gamepad2.right_trigger > 0.9 && slideMode == SlideMode.MANUAL) {
                 hslides.resetEncoder()
             }
             locker.update(gamepad2.ps)

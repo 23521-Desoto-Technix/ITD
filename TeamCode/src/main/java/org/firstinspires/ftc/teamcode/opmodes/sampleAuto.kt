@@ -21,8 +21,8 @@ class sampleAuto : LinearOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
-        val scorePose = Pose(38.5, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(10.0, 25.0, Math.toRadians(0.0))
+        val scorePose = Pose(36.5, 66.0, Math.toRadians(0.0))
+        val pickupPose = Pose(20.0, 25.0, Math.toRadians(0.0))
         follower.setStartingPose(startPose)
 
         val intake = Intake(hardwareMap)
@@ -64,16 +64,23 @@ class sampleAuto : LinearOpMode() {
             .addPath( // Line 2
                 BezierCurve(
                     Point(scorePose),
-                    Point(12.000, 40.000, Point.CARTESIAN),
-                    Point(128.000, 15.000, Point.CARTESIAN),
-                    Point(pickupPose)
+                    Point(0.000, 35.000, Point.CARTESIAN),
+                    Point(75.000, 35.000, Point.CARTESIAN),
+                    Point(55.0, 25.0, Point.CARTESIAN),
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .addPath(
+                    BezierLine(
+                        Point(55.0, 35.0, Point.CARTESIAN),
+                        Point(pickupPose)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .build()
         claw.position = 0.58
         waitForStart()
-        follower.followPath(startToScore)
+        follower.followPath(startToScore, true)
         vslides.setSetpoint(-36_000.0)
         val timer = ElapsedTime()
 
@@ -92,8 +99,8 @@ class sampleAuto : LinearOpMode() {
         }
         claw.position = 0.85
         vslides.setSetpoint(-0.0)
-        follower.followPath(push1)
-        while (!isStopRequested && follower.isBusy) {
+        follower.followPath(push1, true)
+        while (!isStopRequested && follower.pose.x > 15.0) {
             vslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
