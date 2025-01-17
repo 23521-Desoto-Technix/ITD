@@ -18,10 +18,10 @@ class Intake(hwmap: HardwareMap) {
         when (state) {
             Intake.state.SCANNING -> {
                 arm.position = 0.19
-                elbow.position = 0.3
+                elbow.position = 0.27
             }
             Intake.state.DIVING -> {
-                arm.position = 0.26
+                arm.position = 0.3
             }
             Intake.state.TRANSFERING -> {
                 arm.position = 0.0

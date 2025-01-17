@@ -4,8 +4,10 @@ import com.pedropathing.localization.GoBildaPinpointDriver
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.sensors.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.sensors.subsystems.Intake
 import org.firstinspires.ftc.teamcode.sensors.subsystems.Outtake
@@ -49,7 +51,7 @@ class v2 : LinearOpMode() {
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
         val intakeClaw = hardwareMap.servo["intakeClaw"]
-        val intakeSS = ServoSwap(intakeClaw, 0.65, 0.4)
+        val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
         val outtakeSS = ServoSwap(outtakeClaw, 0.58, 0.85)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
@@ -108,10 +110,23 @@ class v2 : LinearOpMode() {
             val rotY = x * sin(-botHeading) + y * cos(-botHeading)
             rotX *= 1.1
             val denominator = max(abs(rotY) + abs(rotX) + abs(rx), 1.0)
-            val frontLeftPower = (rotY + rotX + rx) / denominator
-            val backLeftPower = (rotY - rotX + rx) / denominator
-            val frontRightPower = (rotY - rotX - rx) / denominator
-            val backRightPower = (rotY + rotX - rx) / denominator
+            var mult = 1.0
+            if (gamepad1.right_bumper) {
+                mult = 0.5
+                frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                backRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            } else {
+                frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+                backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+                frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+                backRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+            }
+            val frontLeftPower = (rotY + rotX + rx) / denominator * mult
+            val backLeftPower = (rotY - rotX + rx) / denominator * mult
+            val frontRightPower = (rotY - rotX - rx) / denominator * mult
+            val backRightPower = (rotY + rotX - rx) / denominator * mult
 
             frontLeft.power = frontLeftPower
             backLeft.power = backLeftPower
@@ -162,7 +177,9 @@ class v2 : LinearOpMode() {
                     outtakeSS.set(false)
                     outtake.update(Outtake.state.TRANSFERING)
                     intake.update(Intake.state.TRANSFERING)
-                    hslides.setSetpoint(-0_700.0)
+                    if (tssc.seconds() > 0.1) {
+                        hslides.setSetpoint(-0_200.0)
+                    }
                     if (gamepad2.dpad_right) {
                         tssc.reset()
                         state = State.TRANSFERED_SAM
@@ -210,7 +227,7 @@ class v2 : LinearOpMode() {
                 }
                 State.INTAKING_SPEC -> {
                     vslides.setSetpoint(0.0)
-                    hslides.setSetpoint(1_000.0)
+                    hslides.setSetpoint(-1_000.0)
                     intake.update(Intake.state.IDLE)
                     outtake.update(Outtake.state.INTAKING)
                     if (gamepad2.left_bumper) {
