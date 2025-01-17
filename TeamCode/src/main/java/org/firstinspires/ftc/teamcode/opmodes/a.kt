@@ -37,6 +37,7 @@ class v2 : LinearOpMode() {
         INTAKING_SPEC,
         GRABBED_SPEC,
         DELIVERING_SPEC,
+        LOCKED
     }
     val man = Detector()
     val tssc = ElapsedTime()
@@ -68,6 +69,7 @@ class v2 : LinearOpMode() {
         for (hub in allHubs) {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
+        val locker = Detector()
 
         frontRight.direction = DcMotorSimple.Direction.REVERSE
         backRight.direction = DcMotorSimple.Direction.REVERSE
@@ -133,14 +135,33 @@ class v2 : LinearOpMode() {
             frontRight.power = frontRightPower
             backRight.power = backRightPower
 
-            if (slideMode == SlideMode.MANUAL) {
-                vslides.setPower(gamepad2.left_stick_y.toDouble())
-                hslides.setPower(gamepad2.right_stick_y.toDouble())
-            } else if (slideMode == SlideMode.INSPECTION) {
-                TODO()
-            } else {
+            if (state == State.LOCKED) {
+                vslides.setPower(0.45)
+                hslides.update()
+            }
+            else if (slideMode == SlideMode.NORMAL) {
                 vslides.update()
                 hslides.update()
+
+            } else if (slideMode == SlideMode.MANUAL) {
+                vslides.setPower(gamepad2.left_stick_y.toDouble())
+                hslides.setPower(gamepad2.right_stick_y.toDouble())
+            } else {
+                TODO()
+            }
+            if (gamepad2.left_trigger > 0.9) {
+                vslides.resetEncoder()
+            }
+            if (gamepad2.right_trigger > 0.9) {
+                hslides.resetEncoder()
+            }
+            locker.update(gamepad2.ps)
+            if (locker.risingEdge()) {
+                if (state == State.LOCKED) {
+                    state = State.IDLE
+                } else {
+                    state = State.LOCKED
+                }
             }
             if (gamepad2.square) {
                 tssc.reset()
@@ -253,6 +274,11 @@ class v2 : LinearOpMode() {
                         tssc.reset()
                         state = State.IDLE
                     }
+                }
+                State.LOCKED -> {
+                    hslides.setSetpoint(-1_000.0)
+                    intake.update(Intake.state.IDLE)
+                    outtake.update(Outtake.state.TRANSFERING)
                 }
             }
             intakeSS.update(gamepad2.right_bumper)
