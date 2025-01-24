@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.sensors.subsystems
+package org.firstinspires.ftc.teamcode.subsystems
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -13,8 +13,8 @@ internal class HorizontalSlides(hwmap: HardwareMap, telem: Telemetry) {
     init {
         horz.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         pid.setSetpoint(-23_000.0)
-        encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        //encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        //encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
     //intake encoder is on 0
 

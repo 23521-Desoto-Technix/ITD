@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.sensors.subsystems.HorizontalSlides
-import org.firstinspires.ftc.teamcode.sensors.subsystems.Intake
-import org.firstinspires.ftc.teamcode.sensors.subsystems.Outtake
-import org.firstinspires.ftc.teamcode.sensors.subsystems.VerticalSlides
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
+import org.firstinspires.ftc.teamcode.subsystems.Intake
+import org.firstinspires.ftc.teamcode.subsystems.Outtake
+import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.ServoSwap
 import kotlin.math.abs
@@ -54,7 +54,7 @@ class v2 : LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.58, 0.85)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.53, 0.85)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
@@ -70,6 +70,7 @@ class v2 : LinearOpMode() {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
         val locker = Detector()
+
 
         frontRight.direction = DcMotorSimple.Direction.REVERSE
         backRight.direction = DcMotorSimple.Direction.REVERSE
@@ -258,7 +259,7 @@ class v2 : LinearOpMode() {
                 }
 
                 State.GRABBED_SPEC -> {
-                    vslides.setSetpoint(-36_000.0)
+                    vslides.setSetpoint(-31_000.0)
                     if (tssc.seconds() > 0.2) {
                         outtake.update(Outtake.state.GRABBED)
                     }

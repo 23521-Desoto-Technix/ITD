@@ -1,18 +1,12 @@
 package org.firstinspires.ftc.teamcode.sensors;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-
 
 @TeleOp
-@Config
 public class bllcolorsensorconfig extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -22,17 +16,17 @@ public class bllcolorsensorconfig extends LinearOpMode {
         /*
         Using this example configuration, you can detect all three sample colors based on which pin is reading true:
         both      --> yellow
-        only pin0 --> red
-        only pin1 --> blue
+        only pin0 --> blue
+        only pin1 --> red
         neither   --> no object
          */
         crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 180 / 360.0 * 255, 250 / 360.0 * 255); // blue
         crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 55 / 360.0 * 255, 75 / 360.0 * 255); // yellow
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 40mm or closer requirement
+        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 20mm or closer requirement
 
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 140 / 360.0 * 255, 210 / 360.0 * 255); // inverted red
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 235 / 360.0 * 255, 255 / 360.0 * 255); // inverted yellow
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 40mm or closer requirement
+        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 20mm or closer requirement
         crf.setPin1InvertHue(); // invert hue values
 
         waitForStart();
@@ -128,8 +122,8 @@ class ColorRangefinder {
     }
 
     public float[] getCalibration() {
-        ByteBuffer bytes =
-                ByteBuffer.wrap(i2c.read(CALIB_A_VAL_0, 16)).order(ByteOrder.LITTLE_ENDIAN);
+        java.nio.ByteBuffer bytes =
+                java.nio.ByteBuffer.wrap(i2c.read(CALIB_A_VAL_0, 16)).order(java.nio.ByteOrder.LITTLE_ENDIAN);
         return new float[]{bytes.getFloat(), bytes.getFloat(), bytes.getFloat(), bytes.getFloat()};
     }
 
@@ -139,7 +133,6 @@ class ColorRangefinder {
      * @param value brightness between 0-255
      */
     public void setLedBrightness(int value) {
-
         i2c.write8(LED_BRIGHTNESS, value);
     }
 
@@ -158,8 +151,8 @@ class ColorRangefinder {
      * @return distance in millimeters
      */
     public double readDistance() {
-        ByteBuffer bytes =
-                ByteBuffer.wrap(i2c.read(PS_DISTANCE_0, 4)).order(ByteOrder.LITTLE_ENDIAN);
+        java.nio.ByteBuffer bytes =
+                java.nio.ByteBuffer.wrap(i2c.read(PS_DISTANCE_0, 4)).order(java.nio.ByteOrder.LITTLE_ENDIAN);
         return bytes.getFloat();
     }
 
@@ -178,7 +171,6 @@ class ColorRangefinder {
             hi = (int) Math.round(higherBound / 255.0 * 65535);
         } else { // distance in mm
             float[] calib = getCalibration();
-            System.out.println(Arrays.toString(calib));
             if (lowerBound < .5) hi = 2048;
             else hi = rawFromDistance(calib[0], calib[1], calib[2], calib[3], lowerBound);
             lo = rawFromDistance(calib[0], calib[1], calib[2], calib[3], higherBound);
@@ -189,6 +181,11 @@ class ColorRangefinder {
         byte hi0 = (byte) (hi & 0xFF);
         byte hi1 = (byte) ((hi & 0xFF00) >> 8);
         i2c.write(pinNum.modeAddress, new byte[]{digitalMode.value, lo0, lo1, hi0, hi1});
+        try {
+            Thread.sleep(25);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private double root(double n, double v) {
