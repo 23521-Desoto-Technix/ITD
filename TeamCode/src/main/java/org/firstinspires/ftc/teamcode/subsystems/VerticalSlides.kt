@@ -12,7 +12,7 @@ class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
     val v1 = hwmap.dcMotor["vertical1"]
     val telem = telem
     val encoder = hwmap.dcMotor["backRight"]
-    val pid = PID(0.001, 0.0, 0.0)
+    val pid = PID(0.0005, 0.0, 0.000001)
     var FF = 0.1
     init {
         v0.direction = DcMotorSimple.Direction.REVERSE

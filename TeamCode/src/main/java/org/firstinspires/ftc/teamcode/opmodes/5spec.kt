@@ -11,20 +11,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
 import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import pedroPathing.constants.FConstants
 import pedroPathing.constants.LConstants
 
-@Autonomous
-class specAuto : LinearOpMode() {
+@Autonomous(name = "5 specimen")
+class spec5 : LinearOpMode() {
     override fun runOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(39.0, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(9.5, 13.0, Math.toRadians(0.0))
+        val pickupPose = Pose(09.0, 9.0, Math.toRadians(0.0))
+        val pickupPose2 = Pose(09.0, 30.0, Math.toRadians(0.0))
         follower.setStartingPose(startPose)
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
@@ -35,6 +37,8 @@ class specAuto : LinearOpMode() {
         intake.update(Intake.state.IDLE)
         outtake.update(Outtake.state.GRABBED)
         val vslides = VerticalSlides(hardwareMap, telemetry)
+        val hslides = HorizontalSlides(hardwareMap, telemetry)
+        hslides.setSetpoint(0.0)
         val claw = hardwareMap.servo["outtakeClaw"]
         val encoder = hardwareMap.dcMotor.get("frontRight")
         encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -63,9 +67,9 @@ class specAuto : LinearOpMode() {
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .addPath(
-                    BezierLine(
-                        Point(55.0, 35.0, Point.CARTESIAN),
-                        Point(15.0, 25.0)
+                BezierLine(
+                    Point(55.0, 35.0, Point.CARTESIAN),
+                    Point(15.0, 25.0)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -75,24 +79,31 @@ class specAuto : LinearOpMode() {
                 BezierCurve(
                     Point(15.000, 25.000, Point.CARTESIAN),
                     Point(55.000, 25.000, Point.CARTESIAN),
-                    Point(55.000, 13.000, Point.CARTESIAN)
+                    Point(55.000, 14.000, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .addPath(
                 BezierCurve(
-                    Point(55.000, 13.000, Point.CARTESIAN),
-                    Point(pickupPose),
+                    Point(55.000,14.000, Point.CARTESIAN),
+                    Point(15.000,14.000, Point.CARTESIAN),
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .build()
-        val score1 = follower.pathBuilder()
+        val push3 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
+                    Point(15.000, 14.000, Point.CARTESIAN),
+                    Point(55.000, 14.000, Point.CARTESIAN),
+                    Point(55.000, 9.000, Point.CARTESIAN)
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .addPath(
+                BezierCurve(
+                    Point(55.000, 9.000, Point.CARTESIAN),
                     Point(pickupPose),
-                    Point(11.5, 70.0, Point.CARTESIAN),
-                    Point(37.5, 70.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -101,9 +112,9 @@ class specAuto : LinearOpMode() {
             .addPath(
                 BezierCurve(
                     Point(37.500, 70.000, Point.CARTESIAN),
-                    Point(10.000, 70.000, Point.CARTESIAN),
-                    Point(70.000, 13.000, Point.CARTESIAN),
-                    Point(pickupPose)
+                    //Point(25.000, 50.000, Point.CARTESIAN),
+                    //Point(30.000, 30.000, Point.CARTESIAN),
+                    Point(pickupPose2)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -112,9 +123,19 @@ class specAuto : LinearOpMode() {
             .addPath(
                 BezierCurve(
                     Point(37.500, 70.000, Point.CARTESIAN),
-                    Point(10.000, 70.000, Point.CARTESIAN),
-                    Point(70.000, 13.000, Point.CARTESIAN),
-                    Point(12.0,13.0, Point.CARTESIAN)
+                    //Point(25.000, 50.000, Point.CARTESIAN),
+                    Point(30.000, 30.000, Point.CARTESIAN),
+                    Point(9.0,30.0, Point.CARTESIAN)
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .build()
+        val score1 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Point(pickupPose2),
+                    //Point(11.5, 70.0, Point.CARTESIAN),
+                    Point(39.0, 67.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -122,9 +143,9 @@ class specAuto : LinearOpMode() {
         val score2 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(pickupPose),
-                    Point(9.0, 74.0, Point.CARTESIAN),
-                    Point(37.5, 74.0, Point.CARTESIAN)
+                    Point(pickupPose2),
+                    //Point(9.0, 74.0, Point.CARTESIAN),
+                    Point(39.0, 68.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -132,9 +153,19 @@ class specAuto : LinearOpMode() {
         val score3 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(pickupPose),
-                    Point(9.0, 78.0, Point.CARTESIAN),
-                    Point(37.5, 78.0, Point.CARTESIAN)
+                    Point(pickupPose2),
+                    //Point(9.0, 78.0, Point.CARTESIAN),
+                    Point(39.0, 69.0, Point.CARTESIAN)
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .build()
+        val score4 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Point(pickupPose2),
+                    //Point(9.0, 78.0, Point.CARTESIAN),
+                    Point(39.0, 70.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -146,9 +177,9 @@ class specAuto : LinearOpMode() {
         follower.followPath(startToScore, true)
         vslides.setSetpoint(-33_000.0)
         val timer = ElapsedTime()
-
         while (!isStopRequested && follower.isBusy) {
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
@@ -156,17 +187,22 @@ class specAuto : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-60_000.0)
-        while (timer.seconds() < 0.5) {
+        vslides.setSetpoint(-52_000.0)
+        while (timer.seconds() < 0.3) {
             vslides.update()
+            hslides.update()
         }
-        claw.position = 0.85
+        claw.position = 1.0
         vslides.setSetpoint(-0.0)
         follower.followPath(push1, true)
         outtake.update(Outtake.state.INTAKING)
         timer.reset()
         while (!isStopRequested && follower.isBusy) {
+            if (follower.pose.x < 20.0 && timer.seconds() > 1.0) {
+                break
+            }
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
@@ -179,26 +215,48 @@ class specAuto : LinearOpMode() {
             if (timer.seconds() > 1.0) {
                 outtake.update(Outtake.state.INTAKING)
             }
+            if (follower.pose.x < 20.0 && timer.seconds() > 1.0) {
+                break
+            }
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
             telemetry.update()
         }
+        follower.followPath(push3, true)
+        timer.reset()
+        while (!isStopRequested && follower.isBusy && (!dig0.state && !dig1.state)) {
+            if (timer.seconds() > 1.0) {
+                outtake.update(Outtake.state.INTAKING)
+            }
+            vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        follower.breakFollowing()
         claw.position = 0.55
         timer.reset()
         while (timer.seconds() < 0.1) {
             vslides.update()
+            hslides.update()
         }
         vslides.setSetpoint(-33_000.0)
-        while (timer.seconds() < 0.3) {
+        while (timer.seconds() < 0.2) {
             vslides.update()
+            hslides.update()
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score1, true)
         while (!isStopRequested && follower.isBusy) {
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
@@ -206,35 +264,41 @@ class specAuto : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-60_000.0)
-        while (timer.seconds() < 0.5) {
+        vslides.setSetpoint(-52_000.0)
+        while (timer.seconds() < 0.2) {
             vslides.update()
+            hslides.update()
         }
         outtake.update(Outtake.state.INTAKING)
-        claw.position = 0.85
+        claw.position = 1.0
         vslides.setSetpoint(-0.0)
         follower.followPath(backToHP, true)
         while (!isStopRequested && follower.isBusy && ((!dig0.state && !dig1.state) || (timer.seconds() < 1.0))) {
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
             telemetry.update()
         }
+        follower.breakFollowing()
         claw.position = 0.55
         timer.reset()
         while (timer.seconds() < 0.1) {
             vslides.update()
+            hslides.update()
         }
         vslides.setSetpoint(-33_000.0)
-        while (timer.seconds() < 0.3) {
+        while (timer.seconds() < 0.2) {
             vslides.update()
+            hslides.update()
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score2, true)
         while (!isStopRequested && follower.isBusy) {
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
@@ -242,38 +306,43 @@ class specAuto : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-60_000.0)
-        while (timer.seconds() < 0.5) {
+        vslides.setSetpoint(-52_000.0)
+        while (timer.seconds() < 0.3) {
             vslides.update()
+            hslides.update()
         }
         outtake.update(Outtake.state.INTAKING)
-        claw.position = 0.85
+        claw.position = 1.0
         vslides.setSetpoint(-0.0)
         follower.followPath(backToHP, true)
         //TODO 4 (add the sensor thingy)
-        follower.followPath(backToHP, true)
         timer.reset()
         while (!isStopRequested && follower.isBusy && ((!dig0.state && !dig1.state) || (timer.seconds() < 1.0))) {
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
             telemetry.update()
         }
+        follower.breakFollowing()
         claw.position = 0.55
         timer.reset()
         while (timer.seconds() < 0.1) {
             vslides.update()
+            hslides.update()
         }
         vslides.setSetpoint(-33_000.0)
-        while (timer.seconds() < 0.3) {
+        while (timer.seconds() < 0.2) {
             vslides.update()
+            hslides.update()
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score3, true)
         while (!isStopRequested && follower.isBusy) {
             vslides.update()
+            hslides.update()
             follower.update()
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
@@ -281,15 +350,64 @@ class specAuto : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-60_000.0)
-        while (timer.seconds() < 0.5) {
+        vslides.setSetpoint(-52_000.0)
+        while (timer.seconds() < 0.3) {
             vslides.update()
+            hslides.update()
         }
         outtake.update(Outtake.state.INTAKING)
-        claw.position = 0.85
+        claw.position = 1.0
         vslides.setSetpoint(-0.0)
-        while (timer.seconds() < 1.5) {
+        //while (timer.seconds() < 1.5) {
+        //    vslides.update()
+        //}
+        follower.followPath(backToHP, true)
+        //TODO 4 (add the sensor thingy)
+        timer.reset()
+        while (!isStopRequested && follower.isBusy && ((!dig0.state && !dig1.state) || (timer.seconds() < 1.0))) {
             vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        follower.breakFollowing()
+        claw.position = 0.55
+        timer.reset()
+        while (timer.seconds() < 0.1) {
+            vslides.update()
+            hslides.update()
+        }
+        vslides.setSetpoint(-33_000.0)
+        while (timer.seconds() < 0.2) {
+            vslides.update()
+            hslides.update()
+        }
+        outtake.update(Outtake.state.GRABBED)
+        follower.followPath(score4, true)
+        while (!isStopRequested && follower.isBusy) {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        timer.reset()
+        vslides.setSetpoint(-52_000.0)
+        while (timer.seconds() < 0.3) {
+            vslides.update()
+            hslides.update()
+        }
+        vslides.setSetpoint(-0.0)
+        outtake.update(Outtake.state.INTAKING)
+        claw.position = 1.0
+        while (!isStopRequested) {
+            vslides.update()
+            hslides.update()
         }
     }
 
