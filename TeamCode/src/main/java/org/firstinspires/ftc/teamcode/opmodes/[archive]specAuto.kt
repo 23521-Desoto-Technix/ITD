@@ -20,7 +20,7 @@ import pedroPathing.constants.LConstants
 
 @Autonomous
 @Disabled
-class `[archive]specAuto` : LinearOpMode() {
+class ARCHIVEDspecAuto : LinearOpMode() {
     override fun runOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
