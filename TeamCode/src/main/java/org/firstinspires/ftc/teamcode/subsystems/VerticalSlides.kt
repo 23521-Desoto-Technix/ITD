@@ -20,8 +20,6 @@ class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
         v1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         v0.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         v1.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 
     fun update() {

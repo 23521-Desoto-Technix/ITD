@@ -18,7 +18,7 @@ class Outtake(hwmap: HardwareMap) {
             Outtake.state.TRANSFERING -> {
                 armRight.position = 0.68
                 armLeft.position = 0.68
-                elbow.position = 0.75
+                elbow.position = 0.72
             }
             Outtake.state.TRANSFERED -> {
                 armRight.position = 0.4

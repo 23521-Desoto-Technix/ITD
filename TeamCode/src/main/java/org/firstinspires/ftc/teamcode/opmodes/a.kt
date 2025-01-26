@@ -199,7 +199,7 @@ class v2 : LinearOpMode() {
                     outtake.update(Outtake.state.TRANSFERING)
                     intake.update(Intake.state.TRANSFERING)
                     if (tssc.seconds() > 0.1) {
-                        hslides.setSetpoint(-0_000.0)
+                        hslides.setSetpoint(0_200.0)
                     }
                     if (gamepad2.dpad_right) {
                         tssc.reset()
@@ -259,7 +259,7 @@ class v2 : LinearOpMode() {
 
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.2) {
-                        vslides.setSetpoint(-30_000.0)
+                        vslides.setSetpoint(-33_000.0)
                         outtake.update(Outtake.state.GRABBED)
                     }
                     if (gamepad2.dpad_up) {
@@ -268,7 +268,7 @@ class v2 : LinearOpMode() {
                     }
                 }
                 State.DELIVERING_SPEC -> {
-                    vslides.setSetpoint(-48_000.0)
+                    vslides.setSetpoint(-52_000.0)
                     if (tssc.seconds() > 0.4) {
                         outtakeSS.set(false)
                         tssc.reset()

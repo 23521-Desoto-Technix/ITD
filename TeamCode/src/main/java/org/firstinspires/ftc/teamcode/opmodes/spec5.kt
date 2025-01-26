@@ -25,8 +25,8 @@ class spec5 : LinearOpMode() {
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(39.0, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(09.0, 9.0, Math.toRadians(0.0))
-        val pickupPose2 = Pose(09.0, 30.0, Math.toRadians(0.0))
+        val pickupPose = Pose(08.0, 9.0, Math.toRadians(0.0))
+        val pickupPose2 = Pose(08.0, 30.0, Math.toRadians(0.0))
         follower.setStartingPose(startPose)
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
@@ -38,7 +38,7 @@ class spec5 : LinearOpMode() {
         outtake.update(Outtake.state.GRABBED)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
-        hslides.setSetpoint(0.0)
+        hslides.setSetpoint(-1_000.0)
         val claw = hardwareMap.servo["outtakeClaw"]
         val encoder = hardwareMap.dcMotor.get("frontRight")
         encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -145,7 +145,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(9.0, 74.0, Point.CARTESIAN),
-                    Point(39.0, 68.0, Point.CARTESIAN)
+                    Point(39.0, 67.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -155,7 +155,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(9.0, 78.0, Point.CARTESIAN),
-                    Point(39.0, 69.0, Point.CARTESIAN)
+                    Point(39.0, 67.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -165,7 +165,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(9.0, 78.0, Point.CARTESIAN),
-                    Point(39.0, 70.0, Point.CARTESIAN)
+                    Point(39.0, 67.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -187,7 +187,7 @@ class spec5 : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-52_000.0)
+        vslides.setSetpoint(-54_000.0)
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
@@ -264,8 +264,8 @@ class spec5 : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-52_000.0)
-        while (timer.seconds() < 0.2) {
+        vslides.setSetpoint(-54_000.0)
+        while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
         }
@@ -306,7 +306,7 @@ class spec5 : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-52_000.0)
+        vslides.setSetpoint(-54_000.0)
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
@@ -350,7 +350,7 @@ class spec5 : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-52_000.0)
+        vslides.setSetpoint(-54_000.0)
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
@@ -397,7 +397,7 @@ class spec5 : LinearOpMode() {
             telemetry.update()
         }
         timer.reset()
-        vslides.setSetpoint(-52_000.0)
+        vslides.setSetpoint(-54_000.0)
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
@@ -405,8 +405,13 @@ class spec5 : LinearOpMode() {
         vslides.setSetpoint(-0.0)
         outtake.update(Outtake.state.INTAKING)
         claw.position = 1.0
+        timer.reset()
         while (!isStopRequested) {
-            vslides.update()
+            if (timer.seconds() < 1.0) {
+                vslides.update()
+            } else {
+                vslides.setPower(0.0)
+            }
             hslides.update()
         }
     }
