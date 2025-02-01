@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes
 import com.pedropathing.follower.Follower
 import com.pedropathing.localization.Pose
 import com.pedropathing.pathgen.BezierCurve
-import com.pedropathing.pathgen.BezierLine
 import com.pedropathing.pathgen.Point
 import com.pedropathing.util.Constants
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
@@ -24,6 +23,7 @@ class sam : LinearOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 114.5, Math.toRadians(0.0))
+        val scorePose = Pose(10.0, 131.0, Math.toRadians(0.0))
         follower.setStartingPose(startPose)
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
@@ -35,34 +35,44 @@ class sam : LinearOpMode() {
         outtake.update(Outtake.state.GRABBED)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
-        hslides.setSetpoint(-1_000.0)
+        hslides.setSetpoint(-0_000.0)
         hslides.resetEncoder()
         vslides.resetEncoder()
-        val claw = hardwareMap.servo["outtakeClaw"]
+        val outtakeClaw = hardwareMap.servo["outtakeClaw"]
         val encoder = hardwareMap.dcMotor.get("frontRight")
         encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        claw.position = 0.55
         val dig0 = hardwareMap.get(DigitalChannel::class.java, "dig0")
         val dig1 = hardwareMap.get(DigitalChannel::class.java, "dig1")
 
-        val startToScore = follower.pathBuilder()
+        val startToScore1 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
                     Point(startPose),
-                    Point(30.0, 120.0, Point.CARTESIAN),
-                    Point(35.000, 110.000, Point.CARTESIAN),
-                    Point(15.0, 128.0, Point.CARTESIAN)
+                    //Point(30.0, 120.0, Point.CARTESIAN),
+                    //Point(35.000, 110.000, Point.CARTESIAN),
+                    Point(scorePose)
                 )
             )
             .setLinearHeadingInterpolation(Math.toRadians(0.0), Math.toRadians(-45.0))
             .build()
-
+        val score1topick = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Point(scorePose),
+                    //Point(30.0, 120.0, Point.CARTESIAN),
+                    //Point(35.000, 110.000, Point.CARTESIAN),
+                    Point(15.000, 125.000, Point.CARTESIAN)
+                )
+            )
+            .setLinearHeadingInterpolation(Math.toRadians(-45.0), Math.toRadians(0.0))
+            .build()
+        outtakeClaw.position = 0.55
         waitForStart()
         leftRGB.position = 0.722
         rightRGB.position = 0.722
         vslides.setSetpoint(0.0)
-        follower.followPath(startToScore, true)
+        follower.followPath(startToScore1, true)
         val timer = ElapsedTime()
         while (!isStopRequested && follower.isBusy) {
             vslides.update()
@@ -74,7 +84,58 @@ class sam : LinearOpMode() {
             telemetry.update()
         }
         vslides.setSetpoint(-103_000.0)
-        while (!isStopRequested) {
+        timer.reset()
+        while (!isStopRequested && timer.seconds() < 1.0) {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        timer.reset()
+        outtake.update(Outtake.state.TRANSFERED)
+        while (!isStopRequested && timer.seconds() < 0.5) {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        outtakeClaw.position = 1.0
+        timer.reset()
+        while (!isStopRequested && timer.seconds() < 0.2) {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        timer.reset()
+        outtake.update(Outtake.state.TRANSFERING)
+
+        vslides.setSetpoint(0.0)
+        while (!isStopRequested && timer.seconds() < 0.5) {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.update()
+        }
+        intake.update(Intake.state.SCANNING)
+        timer.reset()
+        follower.followPath(score1topick, true)
+        while (!isStopRequested && follower.isBusy) {
+            if (timer.seconds() > 0.2) {
+                //hslides.setSetpoint(-23_000.0)
+            }
             vslides.update()
             hslides.update()
             follower.update()

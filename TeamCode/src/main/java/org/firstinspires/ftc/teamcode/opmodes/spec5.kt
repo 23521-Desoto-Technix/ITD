@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.pedropathing.follower.Follower
 import com.pedropathing.localization.Pose
 import com.pedropathing.pathgen.BezierCurve
@@ -11,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
@@ -25,8 +28,9 @@ class spec5 : LinearOpMode() {
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(39.0, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(08.0, 9.0, Math.toRadians(0.0))
+        val pickupPose = Pose(06.0, 8.0, Math.toRadians(0.0))
         val pickupPose2 = Pose(08.0, 30.0, Math.toRadians(0.0))
+        val telemetryA: Telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry())
         follower.setStartingPose(startPose)
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
@@ -68,7 +72,7 @@ class spec5 : LinearOpMode() {
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .addPath(
                 BezierLine(
-                    Point(55.0, 35.0, Point.CARTESIAN),
+                    Point(55.0, 25.0, Point.CARTESIAN),
                     Point(15.0, 25.0)
                 )
             )
@@ -96,13 +100,13 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(15.000, 14.000, Point.CARTESIAN),
                     Point(55.000, 14.000, Point.CARTESIAN),
-                    Point(55.000, 9.000, Point.CARTESIAN)
+                    Point(55.000, 8.000, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .addPath(
                 BezierCurve(
-                    Point(55.000, 9.000, Point.CARTESIAN),
+                    Point(55.000, 8.000, Point.CARTESIAN),
                     Point(pickupPose),
                 )
             )
@@ -111,7 +115,7 @@ class spec5 : LinearOpMode() {
         val backToHP = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(37.500, 70.000, Point.CARTESIAN),
+                    Point(39.0, 67.000, Point.CARTESIAN),
                     //Point(25.000, 50.000, Point.CARTESIAN),
                     //Point(30.000, 30.000, Point.CARTESIAN),
                     Point(pickupPose2)
@@ -181,6 +185,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -204,6 +209,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -221,6 +227,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -235,6 +242,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -258,6 +266,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -277,6 +286,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -300,6 +310,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -321,6 +332,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -344,6 +356,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -368,6 +381,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
@@ -391,6 +405,7 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
+            follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
