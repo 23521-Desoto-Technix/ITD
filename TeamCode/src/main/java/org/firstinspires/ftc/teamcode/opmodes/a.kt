@@ -36,7 +36,8 @@ class v2 : LinearOpMode() {
         INTAKING_SPEC,
         GRABBED_SPEC,
         DELIVERING_SPEC,
-        LOCKED
+        LOCKED,
+        HOLDING
     }
     val man = Detector()
     val tssc = ElapsedTime()
@@ -69,7 +70,7 @@ class v2 : LinearOpMode() {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
         val locker = Detector()
-
+        val holder = Detector()
 
         frontRight.direction = DcMotorSimple.Direction.REVERSE
         backRight.direction = DcMotorSimple.Direction.REVERSE
@@ -172,9 +173,10 @@ class v2 : LinearOpMode() {
                 state = State.SCANNING
 
             }
-            if (gamepad2.triangle) {
+            holder.update(gamepad2.triangle)
+            if (holder.risingEdge() && state != State.HOLDING) {
                 tssc.reset()
-                state = State.OUT
+                state = State.HOLDING
             }
             if (gamepad2.dpad_left) {
                 tssc.reset()
@@ -212,9 +214,16 @@ class v2 : LinearOpMode() {
                         hslides.setSetpoint(-1_000.0)
                     }*/
                 }
-
                 State.OUT -> {
                     hslides.setSetpoint(-23_000.0)
+                    vslides.setSetpoint(0.0)
+                    intake.update(Intake.state.OUT)
+                }
+                State.HOLDING -> {
+                    if (holder.risingEdge() && tssc.seconds() > 0.1) {
+                        state = State.OUT
+                    }
+                    hslides.setSetpoint(-0_000.0)
                     vslides.setSetpoint(0.0)
                     intake.update(Intake.state.OUT)
                 }

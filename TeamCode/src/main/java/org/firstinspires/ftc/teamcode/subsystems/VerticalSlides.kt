@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit
 import org.firstinspires.ftc.teamcode.utils.PID
 import kotlin.math.abs
+
 
 class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
     val v0 = hwmap.dcMotor["vertical0"]
@@ -14,6 +17,8 @@ class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
     val encoder = hwmap.dcMotor["backRight"]
     val pid = PID(0.0005, 0.0, 0.000001)
     var FF = 0.1
+    val TUNED_VOLT = 12.0
+    val chub = hwmap.getAll(LynxModule::class.java)[0]
     init {
         v0.direction = DcMotorSimple.Direction.REVERSE
         v0.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
