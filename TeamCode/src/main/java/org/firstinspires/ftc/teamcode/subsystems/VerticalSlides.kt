@@ -15,10 +15,10 @@ class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
     val v1 = hwmap.dcMotor["vertical1"]
     val telem = telem
     val encoder = hwmap.dcMotor["backRight"]
-    val pid = PID(0.0005, 0.0, 0.000001)
+    val pid = PID(0.0002, 0.0, 0.000001)
     var FF = 0.1
     val TUNED_VOLT = 12.0
-    val chub = hwmap.getAll(LynxModule::class.java)[0]
+    val chub = hwmap.get(LynxModule::class.java, "Control Hub")
     init {
         v0.direction = DcMotorSimple.Direction.REVERSE
         v0.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -30,11 +30,11 @@ class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
     fun update() {
         telem.addData("Encoder Vertical", encoder.currentPosition)
         telem.addData("Error", abs(pid.getSetpoint() - encoder.currentPosition))
+        val power = pid.calculate(encoder.currentPosition.toDouble()) / chub.getInputVoltage(VoltageUnit.VOLTS) * TUNED_VOLT
         if (abs(pid.getSetpoint() - encoder.currentPosition) < 1000) {
             v0.power = -FF
             v1.power = -FF
         } else {
-            val power = pid.calculate(encoder.currentPosition.toDouble())
             v0.power = power
             v1.power = power
         }

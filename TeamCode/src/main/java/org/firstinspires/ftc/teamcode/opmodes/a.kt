@@ -41,6 +41,7 @@ class v2 : LinearOpMode() {
     }
     val man = Detector()
     val tssc = ElapsedTime()
+    val hertz = ElapsedTime()
 
     var state = State.IDLE
     @Throws(InterruptedException::class)
@@ -174,9 +175,11 @@ class v2 : LinearOpMode() {
 
             }
             holder.update(gamepad2.triangle)
-            if (holder.risingEdge() && state != State.HOLDING) {
+            if (holder.risingEdge() && state != State.HOLDING && state != State.TRANSFERRING_SAM) {
                 tssc.reset()
                 state = State.HOLDING
+            } else if (holder.risingEdge() && state == State.TRANSFERRING_SAM) {
+                state = State.OUT
             }
             if (gamepad2.dpad_left) {
                 tssc.reset()
@@ -265,10 +268,9 @@ class v2 : LinearOpMode() {
                         state = State.GRABBED_SPEC
                     }
                 }
-
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.2) {
-                        vslides.setSetpoint(-33_000.0)
+                        vslides.setSetpoint(-32_000.0)
                         outtake.update(Outtake.state.GRABBED)
                     }
                     if (gamepad2.dpad_up) {
@@ -295,6 +297,8 @@ class v2 : LinearOpMode() {
             for (hub in allHubs) {
                 hub.clearBulkCache()
             }
+            telemetry.addData("Hz", 1.0 / hertz.seconds())
+            hertz.reset()
             telemetry.addData("State", state)
             telemetry.addData("heading", botHeading)
             telemetry.update()

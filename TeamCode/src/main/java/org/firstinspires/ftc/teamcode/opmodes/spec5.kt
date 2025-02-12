@@ -8,6 +8,7 @@ import com.pedropathing.pathgen.BezierCurve
 import com.pedropathing.pathgen.BezierLine
 import com.pedropathing.pathgen.Point
 import com.pedropathing.util.Constants
+import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -42,15 +43,19 @@ class spec5 : LinearOpMode() {
         outtake.update(Outtake.state.GRABBED)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
+        hslides.resetEncoder()
+        vslides.resetEncoder()
         hslides.setSetpoint(-1_000.0)
         val claw = hardwareMap.servo["outtakeClaw"]
-        val encoder = hardwareMap.dcMotor.get("frontRight")
-        encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         claw.position = 0.55
         val dig0 = hardwareMap.get(DigitalChannel::class.java, "dig0")
         val dig1 = hardwareMap.get(DigitalChannel::class.java, "dig1")
-
+        val allHubs = hardwareMap.getAll(
+            LynxModule::class.java
+        )
+        for (hub in allHubs) {
+            hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
+        }
         val startToScore = follower.pathBuilder()
             .addPath( // Line 1
                 BezierLine(
@@ -181,14 +186,20 @@ class spec5 : LinearOpMode() {
         follower.followPath(startToScore, true)
         vslides.setSetpoint(-33_000.0)
         val timer = ElapsedTime()
+        val hertz = ElapsedTime()
         while (!isStopRequested && follower.isBusy) {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         timer.reset()
@@ -196,6 +207,9 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         claw.position = 1.0
         vslides.setSetpoint(-0.0)
@@ -209,10 +223,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         follower.followPath(push2, true)
@@ -227,10 +246,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         follower.followPath(push3, true)
@@ -242,10 +266,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         follower.breakFollowing()
@@ -254,11 +283,17 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.1) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         vslides.setSetpoint(-33_000.0)
         while (timer.seconds() < 0.2) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score1, true)
@@ -266,10 +301,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         timer.reset()
@@ -277,6 +317,9 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.INTAKING)
         claw.position = 1.0
@@ -286,10 +329,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         follower.breakFollowing()
@@ -298,11 +346,17 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.1) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         vslides.setSetpoint(-33_000.0)
         while (timer.seconds() < 0.2) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score2, true)
@@ -310,10 +364,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         timer.reset()
@@ -321,6 +380,9 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.INTAKING)
         claw.position = 1.0
@@ -332,10 +394,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         follower.breakFollowing()
@@ -344,11 +411,17 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.1) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         vslides.setSetpoint(-33_000.0)
         while (timer.seconds() < 0.2) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score3, true)
@@ -356,10 +429,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         timer.reset()
@@ -367,6 +445,9 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.INTAKING)
         claw.position = 1.0
@@ -381,10 +462,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         follower.breakFollowing()
@@ -393,11 +479,17 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.1) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         vslides.setSetpoint(-33_000.0)
         while (timer.seconds() < 0.2) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         outtake.update(Outtake.state.GRABBED)
         follower.followPath(score4, true)
@@ -405,10 +497,15 @@ class spec5 : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            follower.telemetryDebug(telemetryA)
+            //follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
             telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             telemetry.update()
         }
         timer.reset()
@@ -416,12 +513,18 @@ class spec5 : LinearOpMode() {
         while (timer.seconds() < 0.3) {
             vslides.update()
             hslides.update()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
         }
         vslides.setSetpoint(-0.0)
         outtake.update(Outtake.state.INTAKING)
         claw.position = 1.0
         timer.reset()
         while (!isStopRequested) {
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
             if (timer.seconds() < 1.0) {
                 vslides.update()
             } else {
