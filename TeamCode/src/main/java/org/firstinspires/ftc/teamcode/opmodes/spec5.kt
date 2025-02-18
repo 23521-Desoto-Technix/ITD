@@ -518,7 +518,8 @@ class spec5 : LinearOpMode() {
             }
         }
         vslides.setSetpoint(-0.0)
-        outtake.update(Outtake.state.INTAKING)
+        outtake.update(Outtake.state.TRANSFERING)
+        follower.followPath(backToHP, true)
         claw.position = 1.0
         timer.reset()
         while (!isStopRequested) {
@@ -530,7 +531,9 @@ class spec5 : LinearOpMode() {
             } else {
                 vslides.setPower(0.0)
             }
+            vslides.update()
             hslides.update()
+            follower.update()
         }
     }
 

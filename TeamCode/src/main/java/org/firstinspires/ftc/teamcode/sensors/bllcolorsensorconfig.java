@@ -20,9 +20,8 @@ public class bllcolorsensorconfig extends LinearOpMode {
         only pin1 --> red
         neither   --> no object
          */
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 180 / 360.0 * 255, 250 / 360.0 * 255); // blue
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 55 / 360.0 * 255, 75 / 360.0 * 255); // yellow
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 20mm or closer requirement
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 10.0); // any
+        //crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 20mm or closer requirement
 
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 140 / 360.0 * 255, 210 / 360.0 * 255); // inverted red
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 235 / 360.0 * 255, 255 / 360.0 * 255); // inverted yellow

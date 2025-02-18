@@ -6,12 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
 import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import org.firstinspires.ftc.teamcode.utils.Detector
+import org.firstinspires.ftc.teamcode.utils.PID
 import org.firstinspires.ftc.teamcode.utils.ServoSwap
 import kotlin.math.abs
 import kotlin.math.cos
@@ -55,12 +57,13 @@ class v2 : LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.53, 1.0)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.56, 1.0)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         val intake = Intake(hardwareMap)
         val outtake = Outtake(hardwareMap)
+        val headingPID = PID(2.0, 0.0, 0.1)
         //TODO
         var slideMode = SlideMode.NORMAL
 
@@ -70,6 +73,8 @@ class v2 : LinearOpMode() {
         for (hub in allHubs) {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
+        val dig0 = hardwareMap.get(DigitalChannel::class.java, "dig0")
+        val dig1 = hardwareMap.get(DigitalChannel::class.java, "dig1")
         val locker = Detector()
         val holder = Detector()
 
@@ -93,9 +98,17 @@ class v2 : LinearOpMode() {
                 rightRGB.position = 1.0
             }
             odo.update()
+            val botHeading = odo.heading
             val y = -gamepad1.left_stick_y.toDouble() // Remember, Y stick value is reversed
             val x = gamepad1.left_stick_x.toDouble()
-            val rx = gamepad1.right_stick_x.toDouble()
+            var rx = gamepad1.right_stick_x.toDouble()
+            var errorFromZero = botHeading
+            if (gamepad1.left_bumper) {
+                if (errorFromZero > 180) {
+                    errorFromZero = -(360 - errorFromZero)
+                }
+                rx = headingPID.calculate(-errorFromZero)
+            }
 
             if (gamepad1.options) {
                 odo.resetPosAndIMU()
@@ -108,7 +121,6 @@ class v2 : LinearOpMode() {
                 }
             }
             man.update(gamepad2.options)
-            val botHeading = odo.heading
 
             var rotX = x * cos(-botHeading) - y * sin(-botHeading)
             val rotY = x * sin(-botHeading) + y * cos(-botHeading)
@@ -175,10 +187,10 @@ class v2 : LinearOpMode() {
 
             }
             holder.update(gamepad2.triangle)
-            if (holder.risingEdge() && state != State.HOLDING && state != State.TRANSFERRING_SAM) {
+            if (holder.risingEdge() && state != State.HOLDING && state != State.TRANSFERRING_SAM && state != State.IDLE) {
                 tssc.reset()
                 state = State.HOLDING
-            } else if (holder.risingEdge() && state == State.TRANSFERRING_SAM) {
+            } else if (holder.risingEdge() && (state == State.TRANSFERRING_SAM || state == State.IDLE)) {
                 state = State.OUT
             }
             if (gamepad2.dpad_left) {
@@ -263,6 +275,11 @@ class v2 : LinearOpMode() {
                     hslides.setSetpoint(-1_000.0)
                     intake.update(Intake.state.IDLE)
                     outtake.update(Outtake.state.INTAKING)
+                    /*if (dig0.state || dig1.state) {
+                        outtakeSS.swap()
+                        tssc.reset()
+                        state = State.GRABBED_SPEC
+                    }*/
                     if (gamepad2.left_bumper) {
                         tssc.reset()
                         state = State.GRABBED_SPEC
@@ -297,6 +314,7 @@ class v2 : LinearOpMode() {
             for (hub in allHubs) {
                 hub.clearBulkCache()
             }
+            telemetry.addData("Error from zero", errorFromZero)
             telemetry.addData("Hz", 1.0 / hertz.seconds())
             hertz.reset()
             telemetry.addData("State", state)

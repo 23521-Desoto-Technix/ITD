@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 class ServoTest : LinearOpMode() {
     override fun runOpMode() {
         val servo0 = hardwareMap.servo.get("outtakeArmRight")
-        val servo1 = hardwareMap.servo.get("outtakeWrist")
+        val servo1 = hardwareMap.servo.get("outtakeClaw")
         waitForStart()
         while (opModeIsActive()) {
             servo0.position = (gamepad1.left_stick_y + 1.0) / 2
