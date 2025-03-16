@@ -91,7 +91,7 @@ public class SampleAlign extends LinearOpMode {
                 }
             }
             if (gamepad1.dpad_up) {
-                processor.detectionMode = BlockDetectorProcessor.DetectionMode.YELLOW_ONLY;
+                processor.detectionMode = BlockDetectorProcessor.DetectionMode.YELLOW;
             } else if (gamepad1.dpad_down) {
                 processor.detectionMode = BlockDetectorProcessor.DetectionMode.ALL_COLORS;
             } else if (gamepad1.dpad_left) {

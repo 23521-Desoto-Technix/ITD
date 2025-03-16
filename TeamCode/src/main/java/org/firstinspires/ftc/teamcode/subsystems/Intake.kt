@@ -9,9 +9,11 @@ class Intake(hwmap: HardwareMap) {
     enum class state {
         SCANNING,
         DIVING,
-        TRANSFERING,
+        TRANSFERING_INSIDE,
+        TRANSFERING_OUTSIDE,
         OUT,
-        IDLE
+        IDLE,
+        CAMERA
     }
 
     fun update(state: state) {
@@ -23,10 +25,15 @@ class Intake(hwmap: HardwareMap) {
             Intake.state.DIVING -> {
                 arm.position = 0.3
             }
-            Intake.state.TRANSFERING -> {
-                arm.position = 0.1
-                elbow.position = 0.94
+            Intake.state.TRANSFERING_INSIDE -> {
+                arm.position = 0.14
+                elbow.position = 0.86
                 wrist.position = 0.77
+            }
+            Intake.state.TRANSFERING_OUTSIDE -> {
+                arm.position = 0.14
+                elbow.position = 0.86
+                wrist.position = 0.5
             }
             Intake.state.OUT -> {
                 arm.position = 0.19
@@ -36,6 +43,10 @@ class Intake(hwmap: HardwareMap) {
                 arm.position = 0.2
                 elbow.position = 0.97
                 wrist.position = 0.5
+            }
+            Intake.state.CAMERA -> {
+                arm.position = 0.0
+                elbow.position = 0.57
             }
         }
     }

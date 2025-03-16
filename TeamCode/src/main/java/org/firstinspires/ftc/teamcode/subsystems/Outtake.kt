@@ -10,31 +10,35 @@ class Outtake(hwmap: HardwareMap) {
         TRANSFERING,
         TRANSFERED,
         INTAKING,
-        GRABBED
+        GRABBED,
+        HOLDING
     }
 
-    fun update(state: state) {
-        when (state) {
-            Outtake.state.TRANSFERING -> {
-                armRight.position = 0.68
-                armLeft.position = 0.68
-                elbow.position = 0.72
-            }
-            Outtake.state.TRANSFERED -> {
-                armRight.position = 0.4
-                armLeft.position = 0.4
-                elbow.position = 0.07
-            }
-            Outtake.state.INTAKING -> {
-                armRight.position = 0.06
-                armLeft.position = 0.06
-                elbow.position = 0.475
-            }
-            Outtake.state.GRABBED -> {
-                armRight.position = 0.8
-                armLeft.position = 0.8
-                elbow.position = 0.3
-            }
+    fun update(state: state) = when (state) {
+        Outtake.state.TRANSFERING -> {
+            armRight.position = 0.79
+            armLeft.position = 0.79
+            elbow.position = 0.43
+        }
+        Outtake.state.HOLDING -> {
+            armRight.position = 0.74
+            armLeft.position = 0.74
+            elbow.position = 0.43
+        }
+        Outtake.state.TRANSFERED -> {
+            armRight.position = 0.53
+            armLeft.position = 0.53
+            elbow.position = 0.05
+        }
+        Outtake.state.INTAKING -> {
+            armRight.position = 0.11
+            armLeft.position = 0.11
+            elbow.position = 0.11
+        }
+        Outtake.state.GRABBED -> {
+            armRight.position = 0.85
+            armLeft.position = 0.85
+            elbow.position = 0.36
         }
     }
 }

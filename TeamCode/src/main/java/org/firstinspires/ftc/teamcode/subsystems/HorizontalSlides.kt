@@ -9,7 +9,7 @@ internal class HorizontalSlides(hwmap: HardwareMap, telem: Telemetry) {
     var horz = hwmap.dcMotor.get("horz")
     var encoder = hwmap.dcMotor.get("frontRight")
     val telem = telem
-    var pid= PID(0.001, 0.0, 0.0)
+    var pid= PID(0.0005, 0.0, 0.000002)
     init {
         horz.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         pid.setSetpoint(-23_000.0)

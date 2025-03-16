@@ -28,7 +28,7 @@ class spec5 : LinearOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
-        val scorePose = Pose(39.0, 66.0, Math.toRadians(0.0))
+        val scorePose = Pose(39.0, 68.0, Math.toRadians(0.0))
         val pickupPose = Pose(06.0, 8.0, Math.toRadians(0.0))
         val pickupPose2 = Pose(08.0, 30.0, Math.toRadians(0.0))
         val telemetryA: Telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry())
@@ -78,7 +78,7 @@ class spec5 : LinearOpMode() {
             .addPath(
                 BezierLine(
                     Point(55.0, 25.0, Point.CARTESIAN),
-                    Point(15.0, 25.0)
+                    Point(13.0, 25.0)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -86,7 +86,7 @@ class spec5 : LinearOpMode() {
         val push2 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(15.000, 25.000, Point.CARTESIAN),
+                    Point(13.000, 25.000, Point.CARTESIAN),
                     Point(55.000, 25.000, Point.CARTESIAN),
                     Point(55.000, 14.000, Point.CARTESIAN)
                 )
@@ -95,7 +95,7 @@ class spec5 : LinearOpMode() {
             .addPath(
                 BezierCurve(
                     Point(55.000,14.000, Point.CARTESIAN),
-                    Point(15.000,14.000, Point.CARTESIAN),
+                    Point(13.000,14.000, Point.CARTESIAN),
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -103,7 +103,7 @@ class spec5 : LinearOpMode() {
         val push3 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(15.000, 14.000, Point.CARTESIAN),
+                    Point(13.000, 14.000, Point.CARTESIAN),
                     Point(55.000, 14.000, Point.CARTESIAN),
                     Point(55.000, 8.000, Point.CARTESIAN)
                 )
@@ -144,7 +144,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(11.5, 70.0, Point.CARTESIAN),
-                    Point(39.0, 67.0, Point.CARTESIAN)
+                    Point(39.0, 68.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -154,7 +154,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(9.0, 74.0, Point.CARTESIAN),
-                    Point(39.0, 67.0, Point.CARTESIAN)
+                    Point(39.0, 68.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -164,7 +164,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(9.0, 78.0, Point.CARTESIAN),
-                    Point(39.0, 67.0, Point.CARTESIAN)
+                    Point(39.0, 68.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -174,7 +174,7 @@ class spec5 : LinearOpMode() {
                 BezierCurve(
                     Point(pickupPose2),
                     //Point(9.0, 78.0, Point.CARTESIAN),
-                    Point(39.0, 67.0, Point.CARTESIAN)
+                    Point(39.0, 68.0, Point.CARTESIAN)
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))

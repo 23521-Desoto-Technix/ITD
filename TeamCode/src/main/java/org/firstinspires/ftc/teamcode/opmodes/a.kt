@@ -33,11 +33,12 @@ class v2 : LinearOpMode() {
         OUT,
         TRANSFERRING_SAM,
         TRANSFERED_SAM,
-        DROPPING_SAM,
+        DROPPING_SAM_HIGH,
+        DROPPING_SAM_LOW,
         IDLE,
         INTAKING_SPEC,
         GRABBED_SPEC,
-        DELIVERING_SPEC,
+        DELIVERED_SPEC,
         LOCKED,
         HOLDING
     }
@@ -57,7 +58,7 @@ class v2 : LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.56, 1.0)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.8, 1.0)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
@@ -78,8 +79,8 @@ class v2 : LinearOpMode() {
         val locker = Detector()
         val holder = Detector()
 
-        frontRight.direction = DcMotorSimple.Direction.REVERSE
-        backRight.direction = DcMotorSimple.Direction.REVERSE
+        frontLeft.direction = DcMotorSimple.Direction.REVERSE
+        backLeft.direction = DcMotorSimple.Direction.REVERSE
 
         leftRGB.position = 0.5
         rightRGB.position = 0.5
@@ -128,7 +129,7 @@ class v2 : LinearOpMode() {
             val denominator = max(abs(rotY) + abs(rotX) + abs(rx), 1.0)
             var mult = 1.0
             if (gamepad1.right_bumper) {
-                mult = 0.5
+                mult = 0.4
                 frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -203,7 +204,7 @@ class v2 : LinearOpMode() {
                     vslides.setSetpoint(0.0)
                     intake.wrist((gamepad2.left_stick_x.toDouble()+1)/2)
                     hslides.setSetpoint(-23_000.0)
-                    outtake.update(Outtake.state.TRANSFERING)
+                    outtake.update(Outtake.state.HOLDING)
                     if (gamepad2.cross) {
                         intake.update(Intake.state.DIVING)
                     } else {
@@ -211,14 +212,20 @@ class v2 : LinearOpMode() {
                     }
                 }
                 State.TRANSFERRING_SAM -> {
+                    telemetry.addData("Iclaw", intakeSS.state)
                     vslides.setSetpoint(0.0)
                     outtakeSS.set(false)
                     outtake.update(Outtake.state.TRANSFERING)
-                    intake.update(Intake.state.TRANSFERING)
+                    if (intakeSS.state) {
+                        intake.update(Intake.state.TRANSFERING_INSIDE)
+                    } else {
+                        intake.update(Intake.state.TRANSFERING_OUTSIDE)
+                    }
                     if (tssc.seconds() > 0.1) {
                         hslides.setSetpoint(0_200.0)
                     }
-                    if (gamepad2.dpad_right) {
+                    if (gamepad2.dpad_right || tssc.seconds() > 0.6) {
+                        intakeSS.swap()
                         tssc.reset()
                         state = State.TRANSFERED_SAM
                     }
@@ -240,30 +247,42 @@ class v2 : LinearOpMode() {
                     }
                     hslides.setSetpoint(-0_000.0)
                     vslides.setSetpoint(0.0)
+                    outtake.update(Outtake.state.HOLDING)
                     intake.update(Intake.state.OUT)
                 }
                 State.TRANSFERED_SAM -> {
                     vslides.setSetpoint(0.0)
                     if (tssc.seconds() > 0.1) {
-                        intakeSS.set(false)
+                        //intakeSS.set(false)
                         outtake.update(Outtake.state.TRANSFERED)
                     } else {
                         outtakeSS.set(true)
                     }
                     if (gamepad2.dpad_up) {
                         tssc.reset()
-                        state = State.DROPPING_SAM
+                        state = State.DROPPING_SAM_HIGH
+                    }
+                    if (gamepad2.left_stick_button) {
+                        tssc.reset()
+                        state = State.DROPPING_SAM_LOW
                     }
                 }
-
-                State.DROPPING_SAM -> {
-                    vslides.setSetpoint(-103_000.0)
+                State.DROPPING_SAM_HIGH -> {
+                    vslides.setSetpoint(-95_000.0)
                     if (gamepad2.dpad_down) {
+                        outtakeSS.swap()
                         tssc.reset()
                         state = State.IDLE
                     }
                 }
-
+                State.DROPPING_SAM_LOW -> {
+                    vslides.setSetpoint(-34_000.0)
+                    if (gamepad2.dpad_down) {
+                        outtakeSS.swap()
+                        tssc.reset()
+                        state = State.IDLE
+                    }
+                }
                 State.IDLE -> {
                     vslides.setSetpoint(0.0)
                     hslides.setSetpoint(-1_000.0)
@@ -271,7 +290,7 @@ class v2 : LinearOpMode() {
                     outtake.update(Outtake.state.TRANSFERING)
                 }
                 State.INTAKING_SPEC -> {
-                    vslides.setSetpoint(0.0)
+                    vslides.setSetpoint(-25_600.0)
                     hslides.setSetpoint(-1_000.0)
                     intake.update(Intake.state.IDLE)
                     outtake.update(Outtake.state.INTAKING)
@@ -286,22 +305,20 @@ class v2 : LinearOpMode() {
                     }
                 }
                 State.GRABBED_SPEC -> {
-                    if (tssc.seconds() > 0.2) {
-                        vslides.setSetpoint(-32_000.0)
+                    if (tssc.seconds() > 0.5) { //TODO add laser rangefinder delay
+                        vslides.setSetpoint(-50_000.0)
                         outtake.update(Outtake.state.GRABBED)
-                    }
-                    if (gamepad2.dpad_up) {
-                        tssc.reset()
-                        state = State.DELIVERING_SPEC
+                        if (gamepad2.left_bumper) {
+                            tssc.reset()
+                            state = State.DELIVERED_SPEC
+                        }
+                    } else if(tssc.seconds() > 0.2) {
+                        vslides.setSetpoint(-40_000.0)
                     }
                 }
-                State.DELIVERING_SPEC -> {
-                    vslides.setSetpoint(-52_000.0)
-                    if (tssc.seconds() > 0.4) {
-                        outtakeSS.set(false)
-                        tssc.reset()
-                        state = State.IDLE
-                    }
+                State.DELIVERED_SPEC -> {
+                    outtake.update(Outtake.state.TRANSFERED)
+                    vslides.setSetpoint(0.0)
                 }
                 State.LOCKED -> {
                     hslides.setSetpoint(-1_000.0)

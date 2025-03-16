@@ -25,7 +25,9 @@ public class BlockDetectorProcessor implements VisionProcessor {
         ALL_COLORS,
         YELLOW_BLUE,
         YELLOW_RED,
-        YELLOW_ONLY,
+        YELLOW,
+        RED,
+        BLUE
     }
 
     public DetectionMode detectionMode = DetectionMode.ALL_COLORS;
@@ -169,8 +171,14 @@ public class BlockDetectorProcessor implements VisionProcessor {
             case YELLOW_RED:
                 Core.bitwise_or(yellowMask, redMask, combinedMask);
                 break;
-            case YELLOW_ONLY:
+            case YELLOW:
                 combinedMask = yellowMask;
+                break;
+            case RED:
+                combinedMask = redMask;
+                break;
+            case BLUE:
+                combinedMask = blueMask;
                 break;
         }
 
@@ -192,7 +200,7 @@ public class BlockDetectorProcessor implements VisionProcessor {
         Core.normalize(distTransform, distTransform, 0.0, 1.0, Core.NORM_MINMAX);
 
         Mat sureFg = new Mat();
-        Imgproc.threshold(distTransform, sureFg, 0.4, 1.0, Imgproc.THRESH_BINARY);
+        Imgproc.threshold(distTransform, sureFg, 0.6, 1.0, Imgproc.THRESH_BINARY);
 
         // Convert to 8-bit single-channel image
         sureFg.convertTo(sureFg, CvType.CV_8UC1);
