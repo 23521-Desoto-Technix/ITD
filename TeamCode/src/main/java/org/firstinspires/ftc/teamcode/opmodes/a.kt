@@ -78,6 +78,7 @@ class v2 : LinearOpMode() {
         val dig1 = hardwareMap.get(DigitalChannel::class.java, "dig1")
         val locker = Detector()
         val holder = Detector()
+        val dropper = Detector()
 
         frontLeft.direction = DcMotorSimple.Direction.REVERSE
         backLeft.direction = DcMotorSimple.Direction.REVERSE
@@ -188,6 +189,7 @@ class v2 : LinearOpMode() {
 
             }
             holder.update(gamepad2.triangle)
+            dropper.update(gamepad1.left_trigger > 0.25)
             if (holder.risingEdge() && state != State.HOLDING && state != State.TRANSFERRING_SAM && state != State.IDLE) {
                 tssc.reset()
                 state = State.HOLDING
@@ -198,6 +200,9 @@ class v2 : LinearOpMode() {
                 tssc.reset()
                 state = State.INTAKING_SPEC
                 outtakeSS.set(false)
+            }
+            if ((state == State.DROPPING_SAM_HIGH || state == State.DROPPING_SAM_LOW) && dropper.risingEdge()) {
+                outtakeSS.swap()
             }
             when (state) {
                 State.SCANNING -> {
@@ -240,6 +245,7 @@ class v2 : LinearOpMode() {
                     hslides.setSetpoint(-23_000.0)
                     vslides.setSetpoint(0.0)
                     intake.update(Intake.state.OUT)
+                    outtake.update(Outtake.state.HOLDING)
                 }
                 State.HOLDING -> {
                     if (holder.risingEdge() && tssc.seconds() > 0.1) {
@@ -270,7 +276,7 @@ class v2 : LinearOpMode() {
                 State.DROPPING_SAM_HIGH -> {
                     vslides.setSetpoint(-95_000.0)
                     if (gamepad2.dpad_down) {
-                        outtakeSS.swap()
+                        //outtakeSS.swap()
                         tssc.reset()
                         state = State.IDLE
                     }
@@ -278,7 +284,7 @@ class v2 : LinearOpMode() {
                 State.DROPPING_SAM_LOW -> {
                     vslides.setSetpoint(-34_000.0)
                     if (gamepad2.dpad_down) {
-                        outtakeSS.swap()
+                        //outtakeSS.swap()
                         tssc.reset()
                         state = State.IDLE
                     }
