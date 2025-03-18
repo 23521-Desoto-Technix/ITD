@@ -204,6 +204,10 @@ class v2 : LinearOpMode() {
             if ((state == State.DROPPING_SAM_HIGH || state == State.DROPPING_SAM_LOW) && dropper.risingEdge()) {
                 outtakeSS.swap()
             }
+            if (state == State.DELIVERED_SPEC && dropper.risingEdge()) {
+                tssc.reset()
+                state = State.DELIVERED_SPEC
+            }
             when (state) {
                 State.SCANNING -> {
                     vslides.setSetpoint(0.0)
