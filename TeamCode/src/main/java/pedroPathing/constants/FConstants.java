@@ -26,7 +26,7 @@ public class FConstants {
         FollowerConstants.yMovement = 62;
 
         FollowerConstants.forwardZeroPowerAcceleration = 60;
-        FollowerConstants.lateralZeroPowerAcceleration = 60;
+        FollowerConstants.lateralZeroPowerAcceleration = -75;
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.001,0);
         FollowerConstants.useSecondaryTranslationalPID = true;
@@ -44,7 +44,7 @@ public class FConstants {
         FollowerConstants.zeroPowerAccelerationMultiplier = 0.9;
         FollowerConstants.centripetalScaling = 0.0004;
 
-        FollowerConstants.pathEndTimeoutConstraint = 1000;
+        FollowerConstants.pathEndTimeoutConstraint = 25;
         FollowerConstants.pathEndTValueConstraint = 0.995;
         FollowerConstants.pathEndVelocityConstraint = 0.5;
         FollowerConstants.pathEndTranslationalConstraint = 0.1;

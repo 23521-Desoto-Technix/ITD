@@ -129,7 +129,7 @@ class v2 : LinearOpMode() {
             val denominator = max(abs(rotY) + abs(rotX) + abs(rx), 1.0)
             var mult = 1.0
             if (gamepad1.right_bumper) {
-                mult = 0.4
+                mult = 0.3
                 frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
