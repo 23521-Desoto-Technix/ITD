@@ -210,10 +210,10 @@ class v2 : LinearOpMode() {
             }
             when (state) {
                 State.SCANNING -> {
-                    vslides.setSetpoint(0.0)
+                    //vslides.setSetpoint(0.0)
                     intake.wrist((gamepad2.left_stick_x.toDouble()+1)/2)
                     hslides.setSetpoint(-23_000.0)
-                    outtake.update(Outtake.state.HOLDING)
+                    //outtake.update(Outtake.state.HOLDING)
                     if (gamepad2.cross) {
                         intake.update(Intake.state.DIVING)
                     } else {
@@ -247,17 +247,17 @@ class v2 : LinearOpMode() {
                 }
                 State.OUT -> {
                     hslides.setSetpoint(-23_000.0)
-                    vslides.setSetpoint(0.0)
+                    //vslides.setSetpoint(0.0)
                     intake.update(Intake.state.OUT)
-                    outtake.update(Outtake.state.HOLDING)
+                    //outtake.update(Outtake.state.HOLDING)
                 }
                 State.HOLDING -> {
                     if (holder.risingEdge() && tssc.seconds() > 0.1) {
                         state = State.OUT
                     }
                     hslides.setSetpoint(-0_000.0)
-                    vslides.setSetpoint(0.0)
-                    outtake.update(Outtake.state.HOLDING)
+                    //vslides.setSetpoint(0.0)
+                    //outtake.update(Outtake.state.HOLDING)
                     intake.update(Intake.state.OUT)
                 }
                 State.TRANSFERED_SAM -> {
