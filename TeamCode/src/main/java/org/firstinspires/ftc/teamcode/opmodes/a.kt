@@ -201,12 +201,13 @@ class v2 : LinearOpMode() {
                 state = State.INTAKING_SPEC
                 outtakeSS.set(false)
             }
-            if ((state == State.DROPPING_SAM_HIGH || state == State.DROPPING_SAM_LOW) && dropper.risingEdge()) {
+            if ((
+                        state == State.DROPPING_SAM_HIGH ||
+                        state == State.DROPPING_SAM_LOW ||
+                        state == State.HOLDING ||
+                        state == State.OUT ||
+                        state == State.SCANNING) && dropper.risingEdge()) {
                 outtakeSS.swap()
-            }
-            if (state == State.DELIVERED_SPEC && dropper.risingEdge()) {
-                tssc.reset()
-                state = State.DELIVERED_SPEC
             }
             when (state) {
                 State.SCANNING -> {
@@ -246,6 +247,9 @@ class v2 : LinearOpMode() {
                     }*/
                 }
                 State.OUT -> {
+                    if (dropper.risingEdge() || gamepad2.left_bumper) {
+                        vslides.setSetpoint(0.0)
+                    }
                     hslides.setSetpoint(-23_000.0)
                     //vslides.setSetpoint(0.0)
                     intake.update(Intake.state.OUT)
@@ -254,6 +258,9 @@ class v2 : LinearOpMode() {
                 State.HOLDING -> {
                     if (holder.risingEdge() && tssc.seconds() > 0.1) {
                         state = State.OUT
+                    }
+                    if (dropper.risingEdge() || gamepad2.left_bumper) {
+                        vslides.setSetpoint(0.0)
                     }
                     hslides.setSetpoint(-0_000.0)
                     //vslides.setSetpoint(0.0)
