@@ -186,6 +186,9 @@ class v2 : LinearOpMode() {
             if (gamepad2.circle) {
                 tssc.reset()
                 state = State.SCANNING
+                if (vslides.getSetpoint() == 0.0) {
+                outtake.update(Outtake.state.TRANSFERING)
+                }
 
             }
             holder.update(gamepad2.triangle)
@@ -193,8 +196,14 @@ class v2 : LinearOpMode() {
             if (holder.risingEdge() && state != State.HOLDING && state != State.TRANSFERRING_SAM && state != State.IDLE) {
                 tssc.reset()
                 state = State.HOLDING
+                if (vslides.getSetpoint() == 0.0) {
+                    outtake.update(Outtake.state.TRANSFERING)
+                }
             } else if (holder.risingEdge() && (state == State.TRANSFERRING_SAM || state == State.IDLE)) {
                 state = State.OUT
+                if (vslides.getSetpoint() == 0.0) {
+                    outtake.update(Outtake.state.TRANSFERING)
+                }
             }
             if (gamepad2.dpad_left) {
                 tssc.reset()
@@ -248,6 +257,7 @@ class v2 : LinearOpMode() {
                 }
                 State.OUT -> {
                     if (dropper.risingEdge() || gamepad2.left_bumper) {
+                        outtake.update(Outtake.state.TRANSFERED)
                         vslides.setSetpoint(0.0)
                     }
                     hslides.setSetpoint(-23_000.0)
@@ -260,6 +270,7 @@ class v2 : LinearOpMode() {
                         state = State.OUT
                     }
                     if (dropper.risingEdge() || gamepad2.left_bumper) {
+                        outtake.update(Outtake.state.TRANSFERED)
                         vslides.setSetpoint(0.0)
                     }
                     hslides.setSetpoint(-0_000.0)

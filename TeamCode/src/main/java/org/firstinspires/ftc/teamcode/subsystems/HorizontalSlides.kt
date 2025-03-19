@@ -28,6 +28,9 @@ internal class HorizontalSlides(hwmap: HardwareMap, telem: Telemetry) {
     fun setSetpoint(setpoint: Double) {
         pid.setSetpoint(setpoint)
     }
+    fun getSetpoint(): Double {
+        return pid.getSetpoint()
+    }
     fun resetEncoder() {
         encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
