@@ -318,7 +318,7 @@ class v2 : LinearOpMode() {
                     if (tssc.seconds() > 0.5) { //TODO add laser rangefinder delay
                         vslides.setSetpoint(-50_000.0)
                         outtake.update(Outtake.state.GRABBED)
-                        if (gamepad2.left_bumper) {
+                        if (gamepad2.left_bumper || dropper.risingEdge()) {
                             tssc.reset()
                             state = State.DELIVERED_SPEC
                         }
