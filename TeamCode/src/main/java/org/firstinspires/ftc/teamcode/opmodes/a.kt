@@ -187,7 +187,7 @@ class v2 : LinearOpMode() {
                 tssc.reset()
                 state = State.SCANNING
                 if (vslides.getSetpoint() == 0.0) {
-                outtake.update(Outtake.state.TRANSFERING)
+                outtake.update(Outtake.state.HOLDING)
                 }
 
             }
@@ -197,12 +197,12 @@ class v2 : LinearOpMode() {
                 tssc.reset()
                 state = State.HOLDING
                 if (vslides.getSetpoint() == 0.0) {
-                    outtake.update(Outtake.state.TRANSFERING)
+                    outtake.update(Outtake.state.HOLDING)
                 }
             } else if (holder.risingEdge() && (state == State.TRANSFERRING_SAM || state == State.IDLE)) {
                 state = State.OUT
                 if (vslides.getSetpoint() == 0.0) {
-                    outtake.update(Outtake.state.TRANSFERING)
+                    outtake.update(Outtake.state.HOLDING)
                 }
             }
             if (gamepad2.dpad_left) {
