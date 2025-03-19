@@ -229,6 +229,10 @@ class v2 : LinearOpMode() {
                     } else {
                         intake.update(Intake.state.SCANNING)
                     }
+                    if (dropper.risingEdge() || gamepad2.left_bumper) {
+                        outtake.update(Outtake.state.TRANSFERED)
+                        vslides.setSetpoint(0.0)
+                    }
                 }
                 State.TRANSFERRING_SAM -> {
                     telemetry.addData("Iclaw", intakeSS.state)
