@@ -38,7 +38,6 @@ class v2 : LinearOpMode() {
         IDLE,
         INTAKING_SPEC,
         GRABBED_SPEC,
-        DELIVERED_SPEC,
         LOCKED,
         HOLDING
     }
@@ -58,7 +57,7 @@ class v2 : LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.8, 1.0)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.84, 1.0)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
@@ -86,8 +85,11 @@ class v2 : LinearOpMode() {
         leftRGB.position = 0.5
         rightRGB.position = 0.5
 
+        var specaroni = false
+
         odo.resetPosAndIMU();
         waitForStart()
+        outtake.update(Outtake.state.HOLDING)
 
         if (isStopRequested) return
 
@@ -155,7 +157,7 @@ class v2 : LinearOpMode() {
                 vslides.setPower(0.45)
                 hslides.update()
             }
-            else if (slideMode == SlideMode.NORMAL) {
+            else if (slideMode == SlideMode.NORMAL && state != State.SCANNING) {
                 vslides.update()
                 hslides.update()
 
@@ -163,7 +165,7 @@ class v2 : LinearOpMode() {
                 vslides.setPower(gamepad2.left_stick_y.toDouble())
                 hslides.setPower(gamepad2.right_stick_y.toDouble())
             } else {
-                TODO()
+
             }
             if (gamepad2.left_trigger > 0.9 && slideMode == SlideMode.MANUAL) {
                 vslides.resetEncoder()
@@ -184,26 +186,39 @@ class v2 : LinearOpMode() {
                 state = State.TRANSFERRING_SAM
             }
             if (gamepad2.circle) {
-                tssc.reset()
-                state = State.SCANNING
                 if (vslides.getSetpoint() == 0.0) {
-                outtake.update(Outtake.state.HOLDING)
+                    outtake.update(Outtake.state.HOLDING)
                 }
-
+                if (state == State.INTAKING_SPEC) {
+                    outtake.update(Outtake.state.HOLDING)
+                    vslides.setSetpoint(0.0)
+                }
+                tssc.reset()
+                specaroni = false
+                state = State.SCANNING
             }
             holder.update(gamepad2.triangle)
-            dropper.update(gamepad1.left_trigger > 0.25)
+            dropper.update(gamepad1.left_trigger > 0.5)
             if (holder.risingEdge() && state != State.HOLDING && state != State.TRANSFERRING_SAM && state != State.IDLE) {
+                if (vslides.getSetpoint() == 0.0) {
+                    outtake.update(Outtake.state.HOLDING)
+                }
+                if (state == State.INTAKING_SPEC) {
+                    outtake.update(Outtake.state.HOLDING)
+                    vslides.setSetpoint(0.0)
+                }
                 tssc.reset()
                 state = State.HOLDING
-                if (vslides.getSetpoint() == 0.0) {
-                    outtake.update(Outtake.state.HOLDING)
-                }
             } else if (holder.risingEdge() && (state == State.TRANSFERRING_SAM || state == State.IDLE)) {
-                state = State.OUT
                 if (vslides.getSetpoint() == 0.0) {
                     outtake.update(Outtake.state.HOLDING)
                 }
+                if (state == State.INTAKING_SPEC) {
+                    outtake.update(Outtake.state.HOLDING)
+                    vslides.setSetpoint(0.0)
+                }
+                state = State.OUT
+                tssc.reset()
             }
             if (gamepad2.dpad_left) {
                 tssc.reset()
@@ -215,11 +230,31 @@ class v2 : LinearOpMode() {
                         state == State.DROPPING_SAM_LOW ||
                         state == State.HOLDING ||
                         state == State.OUT ||
-                        state == State.SCANNING) && dropper.risingEdge()) {
+                        state == State.SCANNING ||
+                        state == State.GRABBED_SPEC) && dropper.risingEdge()) {
                 outtakeSS.swap()
+            }
+            if (
+                (dropper.risingEdge() || gamepad2.left_bumper) &&
+                (state != State.DROPPING_SAM_HIGH &&
+                state != State.DROPPING_SAM_LOW &&
+                state != State.IDLE &&
+                state != State.INTAKING_SPEC)
+                && tssc.seconds() > 0.5) {
+                outtake.update(Outtake.state.TRANSFERED)
+                vslides.setSetpoint(0.0)
             }
             when (state) {
                 State.SCANNING -> {
+                    vslides.update()
+                    if (specaroni) {
+                        hslides.setPower((gamepad2.left_trigger-gamepad2.right_trigger)/2.toDouble())
+                    } else {
+                        hslides.update()
+                    }
+                    if ((gamepad2.left_trigger+gamepad2.right_trigger) > 0.2) {
+                        specaroni = true
+                    }
                     //vslides.setSetpoint(0.0)
                     intake.wrist((gamepad2.left_stick_x.toDouble()+1)/2)
                     hslides.setSetpoint(-23_000.0)
@@ -229,10 +264,10 @@ class v2 : LinearOpMode() {
                     } else {
                         intake.update(Intake.state.SCANNING)
                     }
-                    if (dropper.risingEdge() || gamepad2.left_bumper) {
+                    /*if (dropper.risingEdge() || gamepad2.left_bumper) {
                         outtake.update(Outtake.state.TRANSFERED)
                         vslides.setSetpoint(0.0)
-                    }
+                    }*/
                 }
                 State.TRANSFERRING_SAM -> {
                     telemetry.addData("Iclaw", intakeSS.state)
@@ -260,10 +295,10 @@ class v2 : LinearOpMode() {
                     }*/
                 }
                 State.OUT -> {
-                    if (dropper.risingEdge() || gamepad2.left_bumper) {
+                    /*if (dropper.risingEdge() || gamepad2.left_bumper) {
                         outtake.update(Outtake.state.TRANSFERED)
                         vslides.setSetpoint(0.0)
-                    }
+                    }*/
                     hslides.setSetpoint(-23_000.0)
                     //vslides.setSetpoint(0.0)
                     intake.update(Intake.state.OUT)
@@ -273,10 +308,10 @@ class v2 : LinearOpMode() {
                     if (holder.risingEdge() && tssc.seconds() > 0.1) {
                         state = State.OUT
                     }
-                    if (dropper.risingEdge() || gamepad2.left_bumper) {
+                    /*if (dropper.risingEdge() || gamepad2.left_bumper) {
                         outtake.update(Outtake.state.TRANSFERED)
                         vslides.setSetpoint(0.0)
-                    }
+                    }*/
                     hslides.setSetpoint(-0_000.0)
                     //vslides.setSetpoint(0.0)
                     //outtake.update(Outtake.state.HOLDING)
@@ -319,7 +354,7 @@ class v2 : LinearOpMode() {
                     vslides.setSetpoint(0.0)
                     hslides.setSetpoint(-1_000.0)
                     intake.update(Intake.state.IDLE)
-                    outtake.update(Outtake.state.TRANSFERING)
+                    //outtake.update(Outtake.state.TRANSFERING)
                 }
                 State.INTAKING_SPEC -> {
                     vslides.setSetpoint(-25_600.0)
@@ -337,20 +372,17 @@ class v2 : LinearOpMode() {
                     }
                 }
                 State.GRABBED_SPEC -> {
-                    if (tssc.seconds() > 0.5) { //TODO add laser rangefinder delay
+                    if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
                         vslides.setSetpoint(-50_000.0)
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
+                            outtake.update(Outtake.state.TRANSFERED)
                             tssc.reset()
-                            state = State.DELIVERED_SPEC
+                            state = State.IDLE
                         }
                     } else if(tssc.seconds() > 0.2) {
                         vslides.setSetpoint(-40_000.0)
                     }
-                }
-                State.DELIVERED_SPEC -> {
-                    outtake.update(Outtake.state.TRANSFERED)
-                    vslides.setSetpoint(0.0)
                 }
                 State.LOCKED -> {
                     hslides.setSetpoint(-1_000.0)
