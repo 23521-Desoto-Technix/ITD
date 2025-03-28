@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
@@ -102,7 +103,7 @@ class v2 : LinearOpMode() {
                 rightRGB.position = 1.0
             }
             odo.update()
-            val botHeading = odo.heading
+            val botHeading = odo.position.getHeading(AngleUnit.RADIANS)
             val y = -gamepad1.left_stick_y.toDouble() // Remember, Y stick value is reversed
             val x = gamepad1.left_stick_x.toDouble()
             var rx = gamepad1.right_stick_x.toDouble()
@@ -282,7 +283,8 @@ class v2 : LinearOpMode() {
                     if (tssc.seconds() > 0.1) {
                         hslides.setSetpoint(0_200.0)
                     }
-                    if (gamepad2.dpad_right || tssc.seconds() > 0.6) {
+                    // || tssc.seconds() > 0.6
+                    if (gamepad2.dpad_right) {
                         intakeSS.swap()
                         tssc.reset()
                         state = State.TRANSFERED_SAM
@@ -373,7 +375,7 @@ class v2 : LinearOpMode() {
                 }
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
-                        vslides.setSetpoint(-50_000.0)
+                        vslides.setSetpoint(-51_000.0)
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
                             outtake.update(Outtake.state.TRANSFERED)

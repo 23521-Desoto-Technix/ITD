@@ -111,7 +111,7 @@ class new5spec : LinearOpMode() {
                 BezierCurve(
                     Point(Pose(20.0, 13.0)),
                     Point(Pose(62.0, 13.0)),
-                    Point(Pose(55.0, 6.0))
+                    Point(Pose(55.0, 7.0))
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -381,7 +381,7 @@ class new5spec : LinearOpMode() {
                     vslides.setSetpoint(-51_000.0)
                 }
                 //TODO
-                if (follower.pose.x > 41.0 || follower.velocity.magnitude < 0.1) {
+                if (follower.pose.x > 43.0 || follower.velocity.magnitude < 0.3) {
                     break
                 }
             }
