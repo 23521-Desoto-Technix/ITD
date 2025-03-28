@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -7,6 +8,7 @@ import kotlin.math.abs
 import kotlin.math.max
 
 @TeleOp
+@Disabled
 class MecanumTeleOp : LinearOpMode() {
     @Throws(InterruptedException::class)
     override fun runOpMode() {

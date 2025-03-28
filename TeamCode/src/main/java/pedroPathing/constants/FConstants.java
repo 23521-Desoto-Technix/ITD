@@ -41,7 +41,7 @@ public class FConstants {
         FollowerConstants.useSecondaryDrivePID = false;
         FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0,0.0,0.2); // Not being used, @see useSecondaryDrivePID
 
-        FollowerConstants.zeroPowerAccelerationMultiplier = 3.0;
+        FollowerConstants.zeroPowerAccelerationMultiplier = 1.5;
         FollowerConstants.centripetalScaling = 0.0006;
 
         FollowerConstants.pathEndTimeoutConstraint = 200;

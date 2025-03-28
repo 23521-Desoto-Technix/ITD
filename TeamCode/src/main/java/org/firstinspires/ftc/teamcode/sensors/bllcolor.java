@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.sensors;
 
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp
+@Disabled
 public class bllcolor extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         DigitalChannel dig0 = hardwareMap.digitalChannel.get("dig0");

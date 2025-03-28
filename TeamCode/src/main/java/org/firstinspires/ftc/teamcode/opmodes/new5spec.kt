@@ -111,7 +111,7 @@ class new5spec : LinearOpMode() {
                 BezierCurve(
                     Point(Pose(20.0, 13.0)),
                     Point(Pose(62.0, 13.0)),
-                    Point(Pose(55.0, 8.0))
+                    Point(Pose(55.0, 6.0))
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -119,8 +119,8 @@ class new5spec : LinearOpMode() {
         val push5 = follower.pathBuilder()
             .addPath( // Line 1
                 BezierCurve(
-                    Point(Pose(55.0, 8.0)),
-                    Point(Pose(26.0, 8.0))
+                    Point(Pose(55.0, 7.0)),
+                    Point(Pose(22.0, 7.0))
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -128,7 +128,16 @@ class new5spec : LinearOpMode() {
         val push6 = follower.pathBuilder()
             .addPath( // Line 1
                 BezierCurve(
-                    Point(Pose(18.0, 30.0)),
+                    Point(Pose(15.0, 7.0)),
+                    Point(Pose(15.0, 30.0)),
+                )
+            )
+            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .build()
+        val push7 = follower.pathBuilder()
+            .addPath( // Line 1
+                BezierCurve(
+                    Point(Pose(15.0, 30.0)),
                     //Point(Pose(18.0, 30.0)),
                     Point(pickupPose)
                 )
@@ -317,6 +326,26 @@ class new5spec : LinearOpMode() {
             if (follower.currentTValue > 0.5) {
                 follower.setMaxPower(0.8)
             }
+            if (follower.currentTValue > 0.9) {
+                break
+            }
+            telemetry.update()
+        }
+        follower.followPath(push7, true)
+        while (!isStopRequested) {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            follower.telemetryDebug(telemetryA)
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            telemetry.addData("Hertz", 1.0 / hertz.seconds())
+            hertz.reset()
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
+            follower.setMaxPower(0.7)
             if (touch.isPressed) {
                 break
             }

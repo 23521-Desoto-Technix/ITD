@@ -57,7 +57,7 @@ class v2 : LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.7, 1.0)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.72, 1.0)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
@@ -154,7 +154,7 @@ class v2 : LinearOpMode() {
             backRight.power = backRightPower
 
             if (state == State.LOCKED) {
-                vslides.setPower(0.45)
+                vslides.update()
                 hslides.update()
             }
             else if (slideMode == SlideMode.NORMAL && state != State.SCANNING) {
@@ -386,6 +386,7 @@ class v2 : LinearOpMode() {
                 }
                 State.LOCKED -> {
                     hslides.setSetpoint(-1_000.0)
+                    vslides.setSetpoint(-72_000.0)
                     intake.update(Intake.state.IDLE)
                     outtake.update(Outtake.state.TRANSFERING)
                 }
