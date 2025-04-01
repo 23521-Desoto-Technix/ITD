@@ -21,8 +21,8 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import pedroPathing.constants.FConstants
 import pedroPathing.constants.LConstants
 
-@Autonomous(name = "new 5 specimen")
-class new5spec : LinearOpMode() {
+@Autonomous(name = "5 Specimen")
+class `5specimen` : LinearOpMode() {
     override fun runOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
@@ -128,8 +128,8 @@ class new5spec : LinearOpMode() {
         val push6 = follower.pathBuilder()
             .addPath( // Line 1
                 BezierCurve(
-                    Point(Pose(15.0, 7.0)),
-                    Point(Pose(15.0, 30.0)),
+                    Point(Pose(15.0, 10.0)),
+                    Point(Pose(15.0, 20.0)),
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -148,8 +148,8 @@ class new5spec : LinearOpMode() {
             .addPath( // Line 1
                 BezierCurve(
                     Point(pickupPose),
-                    Point(Pose(20.0, 74.0)),
-                    Point(Pose(42.0, 74.0))
+                    Point(Pose(20.0, 70.0)),
+                    Point(Pose(42.0, 70.0))
                 )
             )
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
@@ -157,7 +157,7 @@ class new5spec : LinearOpMode() {
         val hp = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(Pose(42.0, 74.0)),
+                    Point(Pose(42.0, 70.0)),
                     Point(Pose(10.0, 66.0)),
                     Point(Pose(30.0, 40.0)),
                     Point(pickupPose),
@@ -345,7 +345,7 @@ class new5spec : LinearOpMode() {
             for (hub in allHubs) {
                 hub.clearBulkCache()
             }
-            follower.setMaxPower(0.7)
+            follower.setMaxPower(0.5)
             if (touch.isPressed) {
                 break
             }
@@ -358,7 +358,7 @@ class new5spec : LinearOpMode() {
             leftRGB.position = 0.3
             timer.reset()
             outtakeClaw.position = 0.65
-            follower.followPath(score, true)
+            follower.holdPoint(Pose(42.0, 72.0))
             follower.setMaxPower(1.0)
             while (timer.seconds() < 0.3) {
 
@@ -376,12 +376,12 @@ class new5spec : LinearOpMode() {
                 for (hub in allHubs) {
                     hub.clearBulkCache()
                 }
-                if (follower.pose.x > 15.0 && follower.pose.x < 16.0) {
+                if (follower.pose.x > 10.0 && follower.pose.x < 11.0) {
                     outtake.update(Outtake.state.GRABBED)
-                    vslides.setSetpoint(-51_000.0)
+                    vslides.setSetpoint(-48_000.0)
                 }
                 //TODO
-                if (follower.pose.x > 43.0 || follower.velocity.magnitude < 0.3) {
+                if (follower.pose.x > 42.0 || follower.velocity.magnitude < 0.3) {
                     break
                 }
             }

@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -23,6 +24,7 @@ import org.opencv.core.RotatedRect;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+@Disabled
 @Autonomous
 public class SampleAlign extends LinearOpMode {
     ServoImplEx wrist;

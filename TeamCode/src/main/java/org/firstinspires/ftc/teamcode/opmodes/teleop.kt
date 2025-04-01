@@ -22,8 +22,8 @@ import kotlin.math.max
 import kotlin.math.sin
 
 
-@TeleOp
-class v2 : LinearOpMode() {
+@TeleOp(name="TeleOp")
+class teleop: LinearOpMode() {
     enum class SlideMode {
         NORMAL,
         MANUAL,
@@ -284,7 +284,8 @@ class v2 : LinearOpMode() {
                         hslides.setSetpoint(0_200.0)
                     }
                     // || tssc.seconds() > 0.6
-                    if (gamepad2.dpad_right) {
+                    if (gamepad2.dpad_right || tssc.seconds() > 0.6) {
+                        outtakeSS.set(true)
                         intakeSS.swap()
                         tssc.reset()
                         state = State.TRANSFERED_SAM
