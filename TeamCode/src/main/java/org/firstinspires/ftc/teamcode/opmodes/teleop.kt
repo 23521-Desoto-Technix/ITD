@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
@@ -58,8 +60,9 @@ class teleop: LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.68, 0.4)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.72, 1.0)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.73, 1.0)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
+        odo.setPosition(Pose2D(DistanceUnit.CM,0.0,0.0,AngleUnit.RADIANS, dataStorage.angle))
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         val intake = Intake(hardwareMap)
@@ -88,7 +91,7 @@ class teleop: LinearOpMode() {
 
         var specaroni = false
 
-        odo.resetPosAndIMU();
+        odo.recalibrateIMU()
         waitForStart()
         outtake.update(Outtake.state.HOLDING)
 
@@ -98,9 +101,15 @@ class teleop: LinearOpMode() {
             if (slideMode == SlideMode.MANUAL) {
                 leftRGB.position = 0.35
                 rightRGB.position = 0.35
-            } else {
+            } else if (state != State.SCANNING) {
                 leftRGB.position = 1.0
                 rightRGB.position = 1.0
+            } else if (intakeSS.state) {
+                leftRGB.position = 0.48
+                rightRGB.position = 0.48
+            } else {
+                leftRGB.position = 0.58
+                rightRGB.position = 0.58
             }
             odo.update()
             val botHeading = odo.position.getHeading(AngleUnit.RADIANS)
@@ -276,12 +285,15 @@ class teleop: LinearOpMode() {
                     outtakeSS.set(false)
                     outtake.update(Outtake.state.TRANSFERING)
                     if (intakeSS.state) {
+                        if (tssc.seconds() > 0.1) {
+                            hslides.setSetpoint(-1_000.0)
+                        }
                         intake.update(Intake.state.TRANSFERING_INSIDE)
                     } else {
+                        if (tssc.seconds() > 0.1) {
+                            hslides.setSetpoint(0_200.0)
+                        }
                         intake.update(Intake.state.TRANSFERING_OUTSIDE)
-                    }
-                    if (tssc.seconds() > 0.1) {
-                        hslides.setSetpoint(0_200.0)
                     }
                     // || tssc.seconds() > 0.6
                     if (gamepad2.dpad_right || tssc.seconds() > 0.6) {
@@ -376,7 +388,7 @@ class teleop: LinearOpMode() {
                 }
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
-                        vslides.setSetpoint(-51_000.0)
+                        vslides.setSetpoint(-50_000.0)
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
                             outtake.update(Outtake.state.TRANSFERED)

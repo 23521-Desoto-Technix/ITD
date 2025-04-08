@@ -26,7 +26,7 @@ class Intake(hwmap: HardwareMap) {
                 arm.position = 0.3
             }
             Intake.state.TRANSFERING_INSIDE -> {
-                arm.position = 0.14
+                arm.position = 0.12
                 elbow.position = 0.86
                 wrist.position = 0.77
             }

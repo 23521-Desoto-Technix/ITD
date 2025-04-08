@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import pedroPathing.constants.FConstants
 import pedroPathing.constants.LConstants
 
-@Autonomous(name = "4 Sample")
-class `4sample` : LinearOpMode() {
+@Autonomous(name = "5 Sample")
+class `5sample` : LinearOpMode() {
     override fun runOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
@@ -102,6 +102,7 @@ class `4sample` : LinearOpMode() {
             )
             .setLinearHeadingInterpolation(Math.toRadians(-45.0), Math.toRadians(-90.0))
             .build()
+        val preload = Pose(8.0, 100.0, Math.toRadians(-90.0))
         waitForStart()
         intake.update(Intake.state.SCANNING)
         follower.followPath(startToScore,0.7, true)
@@ -683,12 +684,90 @@ class `4sample` : LinearOpMode() {
             telemetry.update()
         }
         //END INTAKE+TRANSFER
+        follower.holdPoint(preload)
+        vslides.setSetpoint(0.0)
+        intake.wrist(0.5)
+        intake.update(Intake.state.SCANNING)
+        timer.reset()
+        while (!isStopRequested) {
+            if (timer.seconds() > 0.8) {
+                hslides.setSetpoint(-22_000.0)
+            }
+            vslides.update()
+            hslides.update()
+            follower.update()
+            follower.telemetryDebug(telemetryA)
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
+            if (timer.seconds() > 2.0) {
+                break
+            }
+            telemetry.update()
+        }
+        timer.reset()
+        outtake.update(Outtake.state.TRANSFERING)
+        intake.update(Intake.state.DIVING)
+        while (!isStopRequested) {
+            if (timer.seconds() > 0.1 && timer.seconds() < 0.2) {
+                intakeClaw.position = 0.4
+            }
+            if (timer.seconds() > 0.2 && timer.seconds() < 0.3) {
+                intake.update(Intake.state.TRANSFERING_OUTSIDE)
+                hslides.setSetpoint(-1_000.0)
+            }
+            if (timer.seconds() > 0.5 && timer.seconds() < 0.6) {
+                outtakeClaw.position = 0.73
+            }
+            if (timer.seconds() > 0.6 && timer.seconds() < 0.7) {
+                intakeClaw.position = 0.63
+                outtake.update(Outtake.state.TRANSFERED)
+                vslides.setSetpoint(-100_000.0)
+            }
+            if (timer.seconds() > 0.8) {
+                break
+            }
+            vslides.update()
+            hslides.update()
+            follower.update()
+            follower.telemetryDebug(telemetryA)
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
+            telemetry.update()
+        }
+        follower.holdPoint(scorePose)
+        timer.reset()
+        while (!isStopRequested) {
+            if (timer.seconds() > 2.0) {
+                break
+            }
+            vslides.update()
+            hslides.update()
+            follower.update()
+            follower.telemetryDebug(telemetryA)
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
+            telemetry.update()
+        }
+        outtakeClaw.position = 1.0
         follower.followPath(park, true)
         outtake.update(Outtake.state.TRANSFERING)
         intake.update(Intake.state.TRANSFERING_INSIDE)
         follower.setMaxPower(1.0)
         timer.reset()
         while (!isStopRequested && follower.isBusy) {
+            dataStorage.angle = follower.pose.heading
             vslides.update()
             hslides.update()
             follower.update()
@@ -704,7 +783,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        dataStorage.angle = follower.pose.heading
+        //dataStorage.angle = follower.pose.heading
     }
 
 }
