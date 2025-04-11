@@ -767,7 +767,9 @@ class `5sample` : LinearOpMode() {
         follower.setMaxPower(1.0)
         timer.reset()
         while (!isStopRequested && follower.isBusy) {
-            dataStorage.angle = follower.pose.heading
+            if (!isStopRequested) {
+                dataStorage.angle = follower.pose.heading
+            }
             vslides.update()
             hslides.update()
             follower.update()

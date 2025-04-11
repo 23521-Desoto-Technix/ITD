@@ -389,6 +389,9 @@ class `5specimen` : LinearOpMode() {
             leftRGB.position = 0.7
             follower.followPath(hp, true)
             while (!isStopRequested) {
+                if (!isStopRequested) {
+                    dataStorage.angle = follower.pose.heading
+                }
                 vslides.update()
                 hslides.update()
                 follower.update()
@@ -422,7 +425,9 @@ class `5specimen` : LinearOpMode() {
                 break
             }
         }
-        dataStorage.angle = follower.pose.heading
+        if (!isStopRequested) {
+            dataStorage.angle = follower.pose.heading
+        }
     }
 
 }

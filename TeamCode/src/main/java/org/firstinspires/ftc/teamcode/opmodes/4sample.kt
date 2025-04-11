@@ -703,8 +703,13 @@ class `4sample` : LinearOpMode() {
                 hub.clearBulkCache()
             }
             telemetry.update()
+            if (!isStopRequested) {
+                dataStorage.angle = follower.pose.heading
+            }
         }
-        dataStorage.angle = follower.pose.heading
+        if (!isStopRequested) {
+            dataStorage.angle = follower.pose.heading
+        }
     }
 
 }

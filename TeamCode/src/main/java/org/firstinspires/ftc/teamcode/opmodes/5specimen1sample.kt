@@ -386,7 +386,9 @@ class `5specimen1Sample` : LinearOpMode() {
                 hslides.update()
                 follower.update()
                 follower.telemetryDebug(telemetryA)
-                dataStorage.angle = follower.pose.heading
+                if (!isStopRequested) {
+                    dataStorage.angle = follower.pose.heading
+                }
                 //telemetry.addData("T", follower.currentTValue)
                 //telemetry.update()
                 hertz.reset()
@@ -431,7 +433,9 @@ class `5specimen1Sample` : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            dataStorage.angle = follower.pose.heading
+            if (!isStopRequested) {
+                dataStorage.angle = follower.pose.heading
+            }
             follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
@@ -443,7 +447,9 @@ class `5specimen1Sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        dataStorage.angle = follower.pose.heading
+        if (!isStopRequested) {
+                dataStorage.angle = follower.pose.heading
+            }
         outtakeClaw.position = 1.0
         follower.holdPoint(awayPose)
         timer.reset()
@@ -454,7 +460,9 @@ class `5specimen1Sample` : LinearOpMode() {
             vslides.update()
             hslides.update()
             follower.update()
-            dataStorage.angle = follower.pose.heading
+            if (!isStopRequested) {
+                dataStorage.angle = follower.pose.heading
+            }
             follower.telemetryDebug(telemetryA)
             telemetry.addData("X", follower.pose.x)
             telemetry.addData("Y", follower.pose.y)
