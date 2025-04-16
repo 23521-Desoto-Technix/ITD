@@ -39,7 +39,7 @@ class `5specimen1Sample` : LinearOpMode() {
         val intake = Intake(hardwareMap)
         val outtake = Outtake(hardwareMap)
         intake.update(Intake.state.IDLE)
-        outtake.update(Outtake.state.GRABBED)
+        outtake.update(Outtake.state.INIT)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         val touch = hardwareMap.touchSensor.get("backTouch")
@@ -88,6 +88,7 @@ class `5specimen1Sample` : LinearOpMode() {
         val samplePose = Pose(6.0, 119.0, Math.toRadians(-90.0))
         val awayPose = Pose(6.0, 0.0, Math.toRadians(-90.0))
         waitForStart()
+        outtake.update(Outtake.state.GRABBED)
         leftRGB.position = 0.722
         rightRGB.position = 0.722
         follower.followPath(startToScore, 0.6, true)
@@ -108,13 +109,12 @@ class `5specimen1Sample` : LinearOpMode() {
                 hub.clearBulkCache()
             }
             telemetry.update()
-            if (follower.currentTValue > 0.95) {
+            if (follower.currentTValue > 0.9) {
                 break
             }
         }
         outtakeClaw.position = 1.0
         timer.reset()
-
         follower.holdPoint(pick1)
         follower.setMaxPower(1.0)
         intake.wrist(0.37)
@@ -351,7 +351,7 @@ class `5specimen1Sample` : LinearOpMode() {
             leftRGB.position = 0.3
             timer.reset()
             outtakeClaw.position = 0.73
-            follower.holdPoint(Pose(42.0, 73.0))
+            follower.holdPoint(Pose(42.0, 75.0))
             follower.setMaxPower(1.0)
             while (timer.seconds() < 0.3) {
 
@@ -374,7 +374,7 @@ class `5specimen1Sample` : LinearOpMode() {
                     vslides.setSetpoint(-48_000.0)
                 }
                 //TODO
-                if (follower.pose.x > 40.0 || (follower.velocity.magnitude < 0.3 && timer.seconds() > 0.8)) {
+                if (follower.pose.x > 39.5 || (follower.velocity.magnitude < 0.3 && timer.seconds() > 0.8)) {
                     break
                 }
             }
@@ -413,7 +413,7 @@ class `5specimen1Sample` : LinearOpMode() {
                 break
             }
         }
-        sleep(100)
+        sleep(500)
         outtakeClaw.position = 0.73
         follower.setMaxPower(1.0)
         follower.holdPoint(samplePose)

@@ -39,7 +39,7 @@ class `5specimen` : LinearOpMode() {
         val intake = Intake(hardwareMap)
         val outtake = Outtake(hardwareMap)
         intake.update(Intake.state.IDLE)
-        outtake.update(Outtake.state.GRABBED)
+        outtake.update(Outtake.state.INIT)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         val touch = hardwareMap.touchSensor.get("backTouch")
@@ -166,6 +166,7 @@ class `5specimen` : LinearOpMode() {
             .setConstantHeadingInterpolation(Math.toRadians(0.0))
             .build()
         waitForStart()
+        outtake.update(Outtake.state.GRABBED)
         leftRGB.position = 0.722
         rightRGB.position = 0.722
         follower.followPath(startToScore, 0.6, true)

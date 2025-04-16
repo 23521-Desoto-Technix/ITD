@@ -36,7 +36,7 @@ class `4sample` : LinearOpMode() {
         val intake = Intake(hardwareMap)
         val outtake = Outtake(hardwareMap)
         intake.update(Intake.state.IDLE)
-        outtake.update(Outtake.state.GRABBED)
+        outtake.update(Outtake.state.INIT)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         val touch = hardwareMap.touchSensor.get("backTouch")
@@ -69,7 +69,7 @@ class `4sample` : LinearOpMode() {
             .addPath( // Line 1
                 BezierLine(
                     Point(scorePose),
-                    Point(Pose(18.0, 124.0))
+                    Point(Pose(18.0, 123.0))
                 )
             )
             .setLinearHeadingInterpolation(Math.toRadians(-45.0), Math.toRadians(0.0))
@@ -103,6 +103,7 @@ class `4sample` : LinearOpMode() {
             .setLinearHeadingInterpolation(Math.toRadians(-45.0), Math.toRadians(-90.0))
             .build()
         waitForStart()
+        outtake.update(Outtake.state.GRABBED)
         intake.update(Intake.state.SCANNING)
         follower.followPath(startToScore,0.7, true)
         vslides.setSetpoint(-100_000.0)

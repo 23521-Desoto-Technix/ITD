@@ -11,7 +11,8 @@ class Outtake(hwmap: HardwareMap) {
         TRANSFERED,
         INTAKING,
         GRABBED,
-        HOLDING
+        HOLDING,
+        INIT
     }
 
     fun update(state: state) = when (state) {
@@ -39,6 +40,11 @@ class Outtake(hwmap: HardwareMap) {
             armRight.position = 0.85
             armLeft.position = 0.85
             elbow.position = 0.34
+        }
+        Outtake.state.INIT -> {
+            armRight.position = 0.85
+            armLeft.position = 0.85
+            elbow.position = 0.2
         }
     }
 }

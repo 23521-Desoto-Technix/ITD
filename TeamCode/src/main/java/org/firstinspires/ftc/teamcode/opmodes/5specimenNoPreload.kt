@@ -39,7 +39,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         val intake = Intake(hardwareMap)
         val outtake = Outtake(hardwareMap)
         intake.update(Intake.state.IDLE)
-        outtake.update(Outtake.state.GRABBED)
+        outtake.update(Outtake.state.INIT)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         val touch = hardwareMap.touchSensor.get("backTouch")
@@ -88,6 +88,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         val samplePose = Pose(6.0, 119.0, Math.toRadians(-90.0))
         val awayPose = Pose(6.0, 0.0, Math.toRadians(-90.0))
         waitForStart()
+        outtake.update(Outtake.state.GRABBED)
         leftRGB.position = 0.722
         rightRGB.position = 0.722
         follower.followPath(startToScore, 0.6, true)
@@ -353,10 +354,11 @@ class `5specimenNoPreload` : LinearOpMode() {
                     vslides.setSetpoint(-48_000.0)
                 }
                 //TODO
-                if (follower.pose.x > 40.0 || (follower.velocity.magnitude < 0.3 && timer.seconds() > 0.8)) {
+                if (follower.pose.x > 39.5 || (follower.velocity.magnitude < 0.3 && timer.seconds() > 0.8)) {
                     break
                 }
             }
+            sleep(500)
             outtakeClaw.position = 1.0
             leftRGB.position = 0.7
             follower.holdPoint(middle)
