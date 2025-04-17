@@ -296,14 +296,14 @@ class `5specimenNoPreload` : LinearOpMode() {
             if (timer.seconds() > 0.3 && timer.seconds() < 0.4) {
                 hslides.setSetpoint(-22_000.0)
             }
-            if (timer.seconds() > 0.75 && timer.seconds() < 0.85) {
+            if (timer.seconds() > 0.8 && timer.seconds() < 0.9) {
                 intakeClaw.position = 0.63
                 follower.holdPoint(pickupPose)
                 hslides.setSetpoint(0.0)
                 vslides.setSetpoint(-25_600.0)
                 outtakeClaw.position = 1.0
             }
-            if (timer.seconds() > 1.5 && timer.seconds() < 1.6) {
+            if (timer.seconds() > 1.55 && timer.seconds() < 1.65) {
                 follower.setMaxPower(0.5)
             }
             if (touch.isPressed) {
