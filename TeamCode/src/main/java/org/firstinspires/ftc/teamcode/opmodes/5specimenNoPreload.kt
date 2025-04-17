@@ -28,7 +28,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         val follower = Follower(hardwareMap)
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(42.0, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(5.0, 30.0)
+        val pickupPose = Pose(4.0, 30.0)
         val telemetryA: Telemetry =
             MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry())
         follower.setStartingPose(startPose)
@@ -83,7 +83,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         val pick2 = Pose(26.0, 29.5, Math.toRadians(-45.0))
         val drop2 = Pose(26.0, 29.5, Math.toRadians(-220.0))
         val pick3 = Pose(25.0, 19.3, Math.toRadians(-45.0))
-        val drop3 = Pose(25.0, 30.0, Math.toRadians(-220.0))
+        val drop3 = Pose(30.0, 30.0, Math.toRadians(-220.0))
         val middle = Pose(15.0, 30.0)
         val samplePose = Pose(6.0, 119.0, Math.toRadians(-90.0))
         val awayPose = Pose(6.0, 0.0, Math.toRadians(-90.0))
@@ -230,7 +230,7 @@ class `5specimenNoPreload` : LinearOpMode() {
             for (hub in allHubs) {
                 hub.clearBulkCache()
             }
-            if (timer.seconds() > 0.55) {
+            if (timer.seconds() > 0.65) {
                 break
             }
             telemetry.update()
@@ -296,7 +296,7 @@ class `5specimenNoPreload` : LinearOpMode() {
             if (timer.seconds() > 0.3 && timer.seconds() < 0.4) {
                 hslides.setSetpoint(-22_000.0)
             }
-            if (timer.seconds() > 0.7 && timer.seconds() < 0.8) {
+            if (timer.seconds() > 0.75 && timer.seconds() < 0.85) {
                 intakeClaw.position = 0.63
                 follower.holdPoint(pickupPose)
                 hslides.setSetpoint(0.0)
@@ -331,7 +331,7 @@ class `5specimenNoPreload` : LinearOpMode() {
             leftRGB.position = 0.3
             timer.reset()
             outtakeClaw.position = 0.73
-            follower.holdPoint(Pose(42.0, 73.0))
+            follower.holdPoint(Pose(40.0, 72.0))
             follower.setMaxPower(1.0)
             while (timer.seconds() < 0.3) {
 
@@ -342,6 +342,9 @@ class `5specimenNoPreload` : LinearOpMode() {
                 vslides.update()
                 hslides.update()
                 follower.update()
+                if (!isStopRequested) {
+                    dataStorage.angle = follower.pose.heading
+                }
                 //telemetry.addData("T", follower.currentTValue)
                 //telemetry.update()
                 follower.telemetryDebug(telemetryA)
@@ -358,7 +361,6 @@ class `5specimenNoPreload` : LinearOpMode() {
                     break
                 }
             }
-            sleep(500)
             outtakeClaw.position = 1.0
             leftRGB.position = 0.7
             follower.holdPoint(middle)
@@ -366,6 +368,9 @@ class `5specimenNoPreload` : LinearOpMode() {
                 vslides.update()
                 hslides.update()
                 follower.update()
+                if (!isStopRequested) {
+                    dataStorage.angle = follower.pose.heading
+                }
                 follower.telemetryDebug(telemetryA)
                 //telemetry.addData("T", follower.currentTValue)
                 //telemetry.update()
@@ -392,10 +397,13 @@ class `5specimenNoPreload` : LinearOpMode() {
                     break
                 }
             }
+            sleep(200)
             if (i > 4) {
                 break
             }
         }
-        dataStorage.angle = follower.pose.heading
+        if (!isStopRequested) {
+            dataStorage.angle = follower.pose.heading
+        }
     }
 }
