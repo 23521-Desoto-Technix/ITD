@@ -83,7 +83,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         val pick2 = Pose(26.0, 29.5, Math.toRadians(-45.0))
         val drop2 = Pose(26.0, 29.5, Math.toRadians(-220.0))
         val pick3 = Pose(25.0, 19.3, Math.toRadians(-45.0))
-        val drop3 = Pose(30.0, 30.0, Math.toRadians(-220.0))
+        val drop3 = Pose(27.0, 30.0, Math.toRadians(-220.0))
         val middle = Pose(15.0, 30.0)
         val samplePose = Pose(6.0, 119.0, Math.toRadians(-90.0))
         val awayPose = Pose(6.0, 0.0, Math.toRadians(-90.0))
@@ -242,7 +242,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         intake.wrist(0.37)
         hslides.setSetpoint(0.0)
         while (!isStopRequested) {
-            if (timer.seconds() > 1.1) {
+            if (timer.seconds() > 1.3) {
                 hslides.setSetpoint(-22_000.0)
                 intake.update(Intake.state.SCANNING)
             }
@@ -293,7 +293,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         timer.reset()
         hslides.setSetpoint(0.0)
         while (!isStopRequested) {
-            if (timer.seconds() > 0.3 && timer.seconds() < 0.4) {
+            if (timer.seconds() > 0.2 && timer.seconds() < 0.3) {
                 hslides.setSetpoint(-22_000.0)
             }
             if (timer.seconds() > 0.8 && timer.seconds() < 0.9) {
@@ -303,7 +303,7 @@ class `5specimenNoPreload` : LinearOpMode() {
                 vslides.setSetpoint(-25_600.0)
                 outtakeClaw.position = 1.0
             }
-            if (timer.seconds() > 1.55 && timer.seconds() < 1.65) {
+            if (timer.seconds() > 1.9 && timer.seconds() < 2.0) {
                 follower.setMaxPower(0.5)
             }
             if (touch.isPressed) {
