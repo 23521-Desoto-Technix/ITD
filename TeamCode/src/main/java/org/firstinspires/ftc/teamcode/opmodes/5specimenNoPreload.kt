@@ -92,7 +92,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         leftRGB.position = 0.722
         rightRGB.position = 0.722
         follower.followPath(startToScore, 0.6, true)
-        vslides.setSetpoint(-51_000.0)
+        //vslides.setSetpoint(-51_000.0)
         val timer = ElapsedTime()
         val hertz = ElapsedTime()
         follower.holdPoint(pick1)
@@ -303,7 +303,7 @@ class `5specimenNoPreload` : LinearOpMode() {
                 vslides.setSetpoint(-25_600.0)
                 outtakeClaw.position = 1.0
             }
-            if (timer.seconds() > 1.9 && timer.seconds() < 2.0) {
+            if (timer.seconds() > 1.83 && timer.seconds() < 1.93) {
                 follower.setMaxPower(0.5)
             }
             if (touch.isPressed) {
@@ -324,6 +324,7 @@ class `5specimenNoPreload` : LinearOpMode() {
             telemetry.update()
         }
         intake.update(Intake.state.SCANNING)
+        sleep(200)
         //START SCORE LOOP
         var i = 0
         while (!isStopRequested) {
