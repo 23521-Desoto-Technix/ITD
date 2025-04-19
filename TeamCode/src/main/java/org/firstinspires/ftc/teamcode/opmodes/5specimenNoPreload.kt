@@ -300,7 +300,7 @@ class `5specimenNoPreload` : LinearOpMode() {
                 intakeClaw.position = 0.63
                 follower.holdPoint(pickupPose)
                 hslides.setSetpoint(0.0)
-                vslides.setSetpoint(-25_600.0)
+                vslides.setSetpoint(-26_000.0)
                 outtakeClaw.position = 1.0
             }
             if (timer.seconds() > 1.83 && timer.seconds() < 1.93) {
@@ -385,7 +385,7 @@ class `5specimenNoPreload` : LinearOpMode() {
                         vslides.setSetpoint(0.0)
                     } else {
                         outtake.update(Outtake.state.INTAKING)
-                        vslides.setSetpoint(-25_600.0)
+                        vslides.setSetpoint(-26_000.0)
                     }
                 }
                 if (follower.pose.x < 18.0 && follower.pose.x > 17.0) {
