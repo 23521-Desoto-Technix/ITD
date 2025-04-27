@@ -83,7 +83,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         val pick2 = Pose(26.0, 29.5, Math.toRadians(-45.0))
         val drop2 = Pose(26.0, 29.5, Math.toRadians(-220.0))
         val pick3 = Pose(25.0, 19.3, Math.toRadians(-45.0))
-        val drop3 = Pose(30.0, 30.0, Math.toRadians(-220.0))
+        val drop3 = Pose(27.0, 30.0, Math.toRadians(-220.0))
         val middle = Pose(15.0, 30.0)
         val samplePose = Pose(6.0, 119.0, Math.toRadians(-90.0))
         val awayPose = Pose(6.0, 0.0, Math.toRadians(-90.0))
@@ -92,7 +92,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         leftRGB.position = 0.722
         rightRGB.position = 0.722
         follower.followPath(startToScore, 0.6, true)
-        vslides.setSetpoint(-51_000.0)
+        //vslides.setSetpoint(-51_000.0)
         val timer = ElapsedTime()
         val hertz = ElapsedTime()
         follower.holdPoint(pick1)
@@ -242,7 +242,7 @@ class `5specimenNoPreload` : LinearOpMode() {
         intake.wrist(0.37)
         hslides.setSetpoint(0.0)
         while (!isStopRequested) {
-            if (timer.seconds() > 1.1) {
+            if (timer.seconds() > 1.3) {
                 hslides.setSetpoint(-22_000.0)
                 intake.update(Intake.state.SCANNING)
             }
@@ -293,17 +293,17 @@ class `5specimenNoPreload` : LinearOpMode() {
         timer.reset()
         hslides.setSetpoint(0.0)
         while (!isStopRequested) {
-            if (timer.seconds() > 0.3 && timer.seconds() < 0.4) {
+            if (timer.seconds() > 0.2 && timer.seconds() < 0.3) {
                 hslides.setSetpoint(-22_000.0)
             }
-            if (timer.seconds() > 0.75 && timer.seconds() < 0.85) {
+            if (timer.seconds() > 0.8 && timer.seconds() < 0.9) {
                 intakeClaw.position = 0.63
                 follower.holdPoint(pickupPose)
                 hslides.setSetpoint(0.0)
-                vslides.setSetpoint(-25_600.0)
+                vslides.setSetpoint(-26_000.0)
                 outtakeClaw.position = 1.0
             }
-            if (timer.seconds() > 1.5 && timer.seconds() < 1.6) {
+            if (timer.seconds() > 1.83 && timer.seconds() < 1.93) {
                 follower.setMaxPower(0.5)
             }
             if (touch.isPressed) {
@@ -324,6 +324,7 @@ class `5specimenNoPreload` : LinearOpMode() {
             telemetry.update()
         }
         intake.update(Intake.state.SCANNING)
+        sleep(200)
         //START SCORE LOOP
         var i = 0
         while (!isStopRequested) {
@@ -384,7 +385,7 @@ class `5specimenNoPreload` : LinearOpMode() {
                         vslides.setSetpoint(0.0)
                     } else {
                         outtake.update(Outtake.state.INTAKING)
-                        vslides.setSetpoint(-25_600.0)
+                        vslides.setSetpoint(-26_000.0)
                     }
                 }
                 if (follower.pose.x < 18.0 && follower.pose.x > 17.0) {
