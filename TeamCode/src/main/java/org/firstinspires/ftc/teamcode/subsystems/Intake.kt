@@ -21,19 +21,19 @@ class Intake(hwmap: HardwareMap) {
         when (state) {
             Intake.state.SCANNING -> {
                 arm.position = 0.19
-                elbow.position = 0.27
+                elbow.position = 0.25
             }
             Intake.state.DIVING -> {
                 arm.position = 0.3
             }
             Intake.state.TRANSFERING_INSIDE -> {
                 arm.position = 0.12
-                elbow.position = 0.86
+                elbow.position = 0.8
                 wrist.position = 0.77
             }
             Intake.state.TRANSFERING_OUTSIDE -> {
                 arm.position = 0.14
-                elbow.position = 0.86
+                elbow.position = 0.8
                 wrist.position = 0.5
             }
             Intake.state.OUT -> {
@@ -46,9 +46,10 @@ class Intake(hwmap: HardwareMap) {
                 wrist.position = 0.5
             }
             Intake.state.PASSTHROUGH -> {
-                arm.position = 0.05
-                elbow.position = 1.0
-                wrist.position = 0.5
+                arm.position = 0.00
+                elbow.position = .88
+                wrist.position = 0.55
+                //.6 wrist position works well for inside grip
             }
             Intake.state.CAMERA -> {
                 arm.position = 0.0
