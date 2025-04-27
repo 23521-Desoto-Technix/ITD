@@ -14,7 +14,8 @@ class Intake(hwmap: HardwareMap) {
         OUT,
         IDLE,
         CAMERA,
-        PASSTHROUGH
+        PASSTHROUGH_INSIDE,
+        PASSTHROUGH_OUTSIDE,
     }
 
     fun update(state: state) {
@@ -45,11 +46,15 @@ class Intake(hwmap: HardwareMap) {
                 elbow.position = 0.97
                 wrist.position = 0.5
             }
-            Intake.state.PASSTHROUGH -> {
+            Intake.state.PASSTHROUGH_INSIDE -> {
                 arm.position = 0.00
                 elbow.position = .88
                 wrist.position = 0.55
-                //.6 wrist position works well for inside grip
+            }
+            Intake.state.PASSTHROUGH_OUTSIDE -> {
+                arm.position = 0.00
+                elbow.position = .88
+                wrist.position = 0.55
             }
             Intake.state.CAMERA -> {
                 arm.position = 0.0
