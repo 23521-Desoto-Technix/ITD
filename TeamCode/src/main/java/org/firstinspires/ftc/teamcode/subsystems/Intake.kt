@@ -13,7 +13,8 @@ class Intake(hwmap: HardwareMap) {
         TRANSFERING_OUTSIDE,
         OUT,
         IDLE,
-        CAMERA
+        CAMERA,
+        PASSTHROUGH
     }
 
     fun update(state: state) {
@@ -42,6 +43,11 @@ class Intake(hwmap: HardwareMap) {
             Intake.state.IDLE -> {
                 arm.position = 0.2
                 elbow.position = 0.97
+                wrist.position = 0.5
+            }
+            Intake.state.PASSTHROUGH -> {
+                arm.position = 0.05
+                elbow.position = 1.0
                 wrist.position = 0.5
             }
             Intake.state.CAMERA -> {

@@ -374,7 +374,7 @@ class teleop: LinearOpMode() {
                 State.INTAKING_SPEC -> {
                     vslides.setSetpoint(-25_600.0)
                     hslides.setSetpoint(-1_000.0)
-                    intake.update(Intake.state.IDLE)
+                    intake.update(Intake.state.PASSTHROUGH)
                     outtake.update(Outtake.state.INTAKING)
                     /*if (dig0.state || dig1.state) {
                         outtakeSS.swap()
