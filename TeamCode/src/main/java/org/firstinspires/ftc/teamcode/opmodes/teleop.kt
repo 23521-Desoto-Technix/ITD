@@ -372,7 +372,7 @@ class teleop: LinearOpMode() {
                     //outtake.update(Outtake.state.TRANSFERING)
                 }
                 State.INTAKING_SPEC -> {
-                    if (tssc.seconds() > 0.5 && tssc.seconds() < 0.6) { //CHANGE THIS TO CHANGE DELAY
+                    if (tssc.seconds() > 0.4 && tssc.seconds() < 0.5) { //CHANGE THIS TO CHANGE DELAY
                         if (intakeSS.state) {
                             intake.update(Intake.state.PASSTHROUGH_INSIDE)
                         } else {
