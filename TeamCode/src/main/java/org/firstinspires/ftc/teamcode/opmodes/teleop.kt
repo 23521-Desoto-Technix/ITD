@@ -233,11 +233,6 @@ class teleop: LinearOpMode() {
             if (gamepad2.dpad_left) {
                 tssc.reset()
                 state = State.INTAKING_SPEC
-                if (intakeSS.state) {
-                    intake.update(Intake.state.PASSTHROUGH_INSIDE)
-                } else {
-                    intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
-                }
                 outtakeSS.set(false)
             }
             if ((
@@ -377,6 +372,13 @@ class teleop: LinearOpMode() {
                     //outtake.update(Outtake.state.TRANSFERING)
                 }
                 State.INTAKING_SPEC -> {
+                    if (tssc.seconds() > 0.5 && tssc.seconds() < 0.6) { //CHANGE THIS TO CHANGE DELAY
+                        if (intakeSS.state) {
+                            intake.update(Intake.state.PASSTHROUGH_INSIDE)
+                        } else {
+                            intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
+                        }
+                    }
                     vslides.setSetpoint(-25_600.0)
                     hslides.setSetpoint(-1_000.0)
                     outtake.update(Outtake.state.INTAKING)
