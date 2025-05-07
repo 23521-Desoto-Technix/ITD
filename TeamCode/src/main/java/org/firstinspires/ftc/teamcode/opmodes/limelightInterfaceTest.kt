@@ -52,27 +52,27 @@ class SensorLimelight3A : LinearOpMode() {
 
         while (opModeIsActive()) {
             val status: LLStatus = limelight!!.getStatus()
-            telemetry.addData(
+            /*telemetry.addData(
                 "Name", "%s",
                 status.getName()
             )
             telemetry.addData(
                 "LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                status.getTemp(), status.getCpu(), status.getFps() as Int
+                status.getTemp(), status.getCpu(), status.getFps()
             )
             telemetry.addData(
                 "Pipeline", "Index: %d, Type: %s",
                 status.getPipelineIndex(), status.getPipelineType()
-            )
+            )*/
 
             val result: LLResult? = limelight!!.getLatestResult()
             if (result != null) {
                 // Access general information
-                val captureLatency: Double = result.getCaptureLatency()
-                val targetingLatency: Double = result.getTargetingLatency()
-                val parseLatency: Double = result.getParseLatency()
-                telemetry.addData("LL Latency", captureLatency + targetingLatency)
-                telemetry.addData("Parse Latency", parseLatency)
+                val captureLatency = result.getCaptureLatency()
+                val targetingLatency = result.getTargetingLatency()
+                val parseLatency = result.getParseLatency()
+                //telemetry.addData("LL Latency", captureLatency + targetingLatency)
+                //telemetry.addData("Parse Latency", parseLatency)
 
                 if (result.isValid()) {
                     telemetry.addData("tx", result.getTx())
@@ -83,11 +83,11 @@ class SensorLimelight3A : LinearOpMode() {
                     // Access color results
                     val colorResults: MutableList<LLResultTypes.ColorResult> = result.getColorResults()
                     for (cr in colorResults) {
-                        telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees())
+                        //telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees())
                     }
                 }
             } else {
-                telemetry.addData("Limelight", "No data available")
+                //telemetry.addData("Limelight", "No data available")
             }
 
             telemetry.update()
