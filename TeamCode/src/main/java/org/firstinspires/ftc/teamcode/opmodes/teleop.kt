@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
+import org.firstinspires.ftc.teamcode.subsystems.IntakeV2
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
 import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import org.firstinspires.ftc.teamcode.utils.Detector
@@ -65,7 +66,9 @@ class teleop: LinearOpMode() {
         odo.setPosition(Pose2D(DistanceUnit.CM,0.0,0.0,AngleUnit.RADIANS, dataStorage.angle))
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
-        val intake = Intake(hardwareMap)
+        //Only ever have one of these two active at once
+        //val intake = Intake(hardwareMap)
+        val intake = IntakeV2(hardwareMap)
         val outtake = Outtake(hardwareMap)
         val headingPID = PID(2.0, 0.0, 0.1)
         //TODO
