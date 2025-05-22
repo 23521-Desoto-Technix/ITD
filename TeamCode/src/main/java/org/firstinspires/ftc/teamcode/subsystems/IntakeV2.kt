@@ -23,10 +23,10 @@ class IntakeV2(hwmap: HardwareMap) {
         when (state) {
             Intake.state.SCANNING -> {
                 arm.position = 0.19
-                elbow.position = 0.25
+                elbow.position = 0.24
             }
             Intake.state.DIVING -> {
-                arm.position = 0.3
+                arm.position = 0.32
             }
             Intake.state.TRANSFERING_INSIDE -> {
                 arm.position = 0.12
@@ -50,7 +50,7 @@ class IntakeV2(hwmap: HardwareMap) {
             Intake.state.PASSTHROUGH_INSIDE -> {
                 arm.position = 0.00
                 elbow.position = .88
-                wrist.position = 0.55
+                wrist.position = 0.50
             }
             Intake.state.PASSTHROUGH_OUTSIDE -> {
                 arm.position = 0.00
