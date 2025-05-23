@@ -4,8 +4,10 @@ import com.qualcomm.hardware.limelightvision.LLResult
 import com.qualcomm.hardware.limelightvision.LLResultTypes
 import com.qualcomm.hardware.limelightvision.LLStatus
 import com.qualcomm.hardware.limelightvision.Limelight3A
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.utils.PID
 
 /*
  * This OpMode illustrates how to use the Limelight3A Vision Sensor.
@@ -32,10 +34,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 @TeleOp
 class SensorLimelight3A : LinearOpMode() {
     private var limelight: Limelight3A? = null
+    private var leftFront: DcMotor? = null
+    private var rightFront: DcMotor? = null
+    private var leftRear: DcMotor? = null
+    private var rightRear: DcMotor? = null
 
     @Throws(InterruptedException::class)
     public override fun runOpMode() {
+        val pid = PID(0.2,0.0,0.0)
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
+        leftFront = hardwareMap.get(DcMotor::class.java, "frontLeft")
+        rightFront = hardwareMap.get(DcMotor::class.java, "frontRight")
+        leftRear = hardwareMap.get(DcMotor::class.java, "backLeft")
+        rightRear = hardwareMap.get(DcMotor::class.java, "backRight")
 
         telemetry.setMsTransmissionInterval(11)
 
@@ -80,6 +91,24 @@ class SensorLimelight3A : LinearOpMode() {
                     telemetry.addData("ty", result.getTy())
                     telemetry.addData("tync", result.getTyNC())
 
+                    if (gamepad1.a) {
+                        val tx = result.getTx()
+                        // Simple proportional control for strafing
+                        // Adjust Kp as needed
+                        val drivePower = pid.calculate(tx)
+
+                        // Mecanum drive logic for strafing
+                        leftFront?.power = drivePower
+                        rightFront?.power = drivePower
+                        leftRear?.power = -drivePower
+                        rightRear?.power = -drivePower
+                    } else {
+                        leftFront?.power = 0.0
+                        rightFront?.power = 0.0
+                        leftRear?.power = 0.0
+                        rightRear?.power = 0.0
+                    }
+
                     // Access color results
                     val colorResults: MutableList<LLResultTypes.ColorResult> = result.getColorResults()
                     for (cr in colorResults) {
@@ -87,6 +116,11 @@ class SensorLimelight3A : LinearOpMode() {
                     }
                 }
             } else {
+                // Stop motors if no valid target or gamepad1.a is not pressed
+                leftFront?.power = 0.0
+                rightFront?.power = 0.0
+                leftRear?.power = 0.0
+                rightRear?.power = 0.0
                 //telemetry.addData("Limelight", "No data available")
             }
 
