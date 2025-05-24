@@ -7,12 +7,15 @@ import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.IntakeV2
 import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.PID
+import org.firstinspires.ftc.teamcode.utils.ServoSwap
 import kotlin.math.abs
+import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.math.tan
 
@@ -35,6 +38,9 @@ class limelight : LinearOpMode() {
         rightRear = hardwareMap.get(DcMotor::class.java, "backRight")
 
         telemetry.setMsTransmissionInterval(11)
+        val intakeClaw = hardwareMap.servo["intakeClaw"]
+        val intakeSS = ServoSwap(intakeClaw, 0.85, 0.35)
+        intakeSS.update(true)
 
         limelight!!.pipelineSwitch(0)
         val readyForSlides = Detector()
@@ -48,45 +54,60 @@ class limelight : LinearOpMode() {
         telemetry.update()
         hslides.resetEncoder()
         waitForStart()
+        intake.update(Intake.state.SCANNING)
         hslides.setSetpoint(0.0)
         var milimeters = 0.0
+        var angle = 0.0
+        var dived = false
+        var grabbed = false
+        val time = ElapsedTime()
         while (opModeIsActive()) {
-            intake.update(Intake.state.SCANNING)
             val status: LLStatus = limelight!!.getStatus()
             hslides.update()
-            /*telemetry.addData(
-                "Name", "%s",
+            telemetry.addData(
+                "Name",
                 status.getName()
             )
             telemetry.addData(
-                "LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                status.getTemp(), status.getCpu(), status.getFps()
+                "index", status.getPipelineIndex()
             )
-            telemetry.addData(
-                "Pipeline", "Index: %d, Type: %s",
-                status.getPipelineIndex(), status.getPipelineType()
-            )*/
-
+            telemetry.addData("type",status.getPipelineType())
             val result: LLResult? = limelight!!.getLatestResult()
             if (result != null) {
                 // Access general information
                 val captureLatency = result.getCaptureLatency()
                 val targetingLatency = result.getTargetingLatency()
                 val parseLatency = result.getParseLatency()
-                //telemetry.addData("LL Latency", captureLatency + targetingLatency)
-                //telemetry.addData("Parse Latency", parseLatency)
+                telemetry.addData("LL Latency", captureLatency + targetingLatency)
+                telemetry.addData("Parse Latency", parseLatency)
+                telemetry.addData("valid", result.isValid())
+                telemetry.addData("python", result.pythonOutput.get(7))
+                var tx = result.pythonOutput.get(1)
+                var ty = result.pythonOutput.get(2)
+                ty -= 480/2
+                tx -= 640/2
+                ty /= 480/2
+                tx /= 640/2
+                tx *= 54.5
+                ty *= 42.0
+                tx -= 18.0
+                ty *= -1
+                ty /= 2
+                tx /= 2
+                telemetry.addData("tx", tx)
+                telemetry.addData("ty", ty)
 
-                if (result.isValid()) {
-                    telemetry.addData("tx", result.getTx())
-                    telemetry.addData("txnc", result.getTxNC())
-                    telemetry.addData("ty", result.getTy())
-                    telemetry.addData("tync", result.getTyNC())
-                    if (readyForSlides.risingEdge() && result.ty != 0.0) {
-                        milimeters = (325 * tan(Math.toRadians(35 + result.getTy()))) + (325 * tan(Math.toRadians(325.0)))
+                if (result.pythonOutput.get(7) != 0.0) {
+                    readyForSlides.update(abs(tx) < 1.0 && hslides.getSetpoint() == 0.0)
+                    if (readyForSlides.risingEdge() && result.pythonOutput.get(7) != 0.0) {
+                        milimeters = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
                     }
-                    readyForSlides.update((abs(result.tx) < 0.7 || gamepad1.b) && result.isValid())
-                    if (gamepad1.a && hslides.getSetpoint() > -2_000.0) {
-                        val tx = result.getTx()
+                    telemetry.addData("raw", result.pythonOutput.get(7))
+                    if (hslides.getSetpoint() == 0.0) {
+                        angle = result.pythonOutput.get(7) / 90 / 4
+                    }
+                    telemetry.addLine((round(325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))).toString())
+                    if (gamepad1.a && hslides.getSetpoint() == 0.0) {
                         // Simple proportional control for strafing
                         // Adjust Kp as needed
                         val drivePower = pid.calculate(tx)
@@ -102,12 +123,6 @@ class limelight : LinearOpMode() {
                         leftRear?.power = -0.1
                         rightRear?.power = 0.1
                     }
-
-                    // Access color results
-                    val colorResults: MutableList<LLResultTypes.ColorResult> = result.getColorResults()
-                    for (cr in colorResults) {
-                        //telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees())
-                    }
                 }
             } else {
                 // Stop motors if no valid target or gamepad1.a is not pressed
@@ -117,16 +132,33 @@ class limelight : LinearOpMode() {
                 rightRear?.power = 0.0
                 //telemetry.addData("Limelight", "No data available")
             }
-            if (readyForSlides.risingEdge() && gamepad1.a) {
+            if (readyForSlides.risingEdge() && gamepad1.a && abs(pid.derivative) < 100.0) {
                 //125.6 mm circumference
                 //8192 CPR
                 val ticks = 8192.0 * (milimeters / 125.6)
                 if (ticks != 0.0) {
-                    hslides.setSetpoint(-11_000.0 - ticks)
+                    hslides.setSetpoint(-7_000.0 - ticks)
                 }
+
             }
+            if (abs(hslides.pid.error) < 75.0 && hslides.pid.derivative < 1.0 && hslides.getSetpoint() != 0.0 && !dived) {
+                intake.update(Intake.state.DIVING)
+                dived = true
+                time.reset()
+            }
+            if (time.milliseconds() > 500 && dived && !grabbed) {
+                intakeSS.swap()
+                grabbed = true
+            }
+            if (time.milliseconds() > 1000 && dived) {
+                intake.update(Intake.state.IDLE)
+            }
+            telemetry.addData("error", abs(hslides.pid.error))
+            telemetry.addData("speed", hslides.pid.derivative)
+            intake.wrist(0.5 + angle)
             telemetry.addData("Milimeters", milimeters.roundToInt())
             telemetry.addData("setpoint", hslides.getSetpoint().roundToInt())
+            telemetry.addData("angle", angle)
             telemetry.update()
         }
         limelight!!.stop()

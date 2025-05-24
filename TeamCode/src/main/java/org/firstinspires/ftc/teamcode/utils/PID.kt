@@ -10,6 +10,9 @@ class PID(
     private var previousError: Double = 0.0
     private var lastTime: Long = System.currentTimeMillis()
 
+    var derivative = 0.0
+    var error = 0.0
+
     fun setSetpoint(setpoint: Double) {
         this.setpoint = setpoint
         integral = 0.0
@@ -24,9 +27,9 @@ class PID(
     fun calculate(measurement: Double): Double {
         val currentTime = System.currentTimeMillis()
         val timeChange = (currentTime - lastTime) / 1000.0
-        val error = setpoint - measurement
+        error = setpoint - measurement
         integral += error * timeChange
-        val derivative = (error - previousError) / timeChange
+        derivative = (error - previousError) / timeChange
 
         val output = kp * error + ki * integral + kd * derivative
 
