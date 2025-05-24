@@ -7,32 +7,17 @@ import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
+import org.firstinspires.ftc.teamcode.subsystems.Intake
+import org.firstinspires.ftc.teamcode.subsystems.IntakeV2
+import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.PID
+import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlin.math.tan
 
-/*
- * This OpMode illustrates how to use the Limelight3A Vision Sensor.
- *
- * @see <a href="https://limelightvision.io/">Limelight</a>
- *
- * Notes on configuration:
- *
- *   The device presents itself, when plugged into a USB port on a Control Hub as an ethernet
- *   interface.  A DHCP server running on the Limelight automatically assigns the Control Hub an
- *   ip address for the new ethernet interface.
- *
- *   Since the Limelight is plugged into a USB port, it will be listed on the top level configuration
- *   activity along with the Control Hub Portal and other USB devices such as webcams.  Typically
- *   serial numbers are displayed below the device's names.  In the case of the Limelight device, the
- *   Control Hub's assigned ip address for that ethernet interface is used as the "serial number".
- *
- *   Tapping the Limelight's name, transitions to a new screen where the user can rename the Limelight
- *   and specify the Limelight's ip address.  Users should take care not to confuse the ip address of
- *   the Limelight itself, which can be configured through the Limelight settings page via a web browser,
- *   and the ip address the Limelight device assigned the Control Hub and which is displayed in small text
- *   below the name of the Limelight on the top level configuration screen.
- */
 @TeleOp
-class SensorLimelight3A : LinearOpMode() {
+class limelight : LinearOpMode() {
     private var limelight: Limelight3A? = null
     private var leftFront: DcMotor? = null
     private var rightFront: DcMotor? = null
@@ -41,7 +26,8 @@ class SensorLimelight3A : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     public override fun runOpMode() {
-        val pid = PID(0.2,0.0,0.0)
+        val pid = PID(0.12,0.0,0.006)
+        val hslides = HorizontalSlides(hardwareMap, telemetry)
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
         leftFront = hardwareMap.get(DcMotor::class.java, "frontLeft")
         rightFront = hardwareMap.get(DcMotor::class.java, "frontRight")
@@ -51,7 +37,8 @@ class SensorLimelight3A : LinearOpMode() {
         telemetry.setMsTransmissionInterval(11)
 
         limelight!!.pipelineSwitch(0)
-
+        val readyForSlides = Detector()
+        val intake = IntakeV2(hardwareMap)
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
          */
@@ -59,10 +46,14 @@ class SensorLimelight3A : LinearOpMode() {
 
         telemetry.addData(">", "Robot Ready.  Press Play.")
         telemetry.update()
+        hslides.resetEncoder()
         waitForStart()
-
+        hslides.setSetpoint(0.0)
+        var milimeters = 0.0
         while (opModeIsActive()) {
+            intake.update(Intake.state.SCANNING)
             val status: LLStatus = limelight!!.getStatus()
+            hslides.update()
             /*telemetry.addData(
                 "Name", "%s",
                 status.getName()
@@ -90,23 +81,26 @@ class SensorLimelight3A : LinearOpMode() {
                     telemetry.addData("txnc", result.getTxNC())
                     telemetry.addData("ty", result.getTy())
                     telemetry.addData("tync", result.getTyNC())
-
-                    if (gamepad1.a) {
+                    if (readyForSlides.risingEdge() && result.ty != 0.0) {
+                        milimeters = (325 * tan(Math.toRadians(35 + result.getTy()))) + (325 * tan(Math.toRadians(325.0)))
+                    }
+                    readyForSlides.update((abs(result.tx) < 0.7 || gamepad1.b) && result.isValid())
+                    if (gamepad1.a && hslides.getSetpoint() > -2_000.0) {
                         val tx = result.getTx()
                         // Simple proportional control for strafing
                         // Adjust Kp as needed
                         val drivePower = pid.calculate(tx)
 
                         // Mecanum drive logic for strafing
-                        leftFront?.power = drivePower
-                        rightFront?.power = drivePower
-                        leftRear?.power = -drivePower
-                        rightRear?.power = -drivePower
+                        leftFront?.power = drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                        rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                        leftRear?.power = -drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                        rightRear?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
                     } else {
-                        leftFront?.power = 0.0
-                        rightFront?.power = 0.0
-                        leftRear?.power = 0.0
-                        rightRear?.power = 0.0
+                        leftFront?.power = -0.1
+                        rightFront?.power = 0.1
+                        leftRear?.power = -0.1
+                        rightRear?.power = 0.1
                     }
 
                     // Access color results
@@ -123,7 +117,16 @@ class SensorLimelight3A : LinearOpMode() {
                 rightRear?.power = 0.0
                 //telemetry.addData("Limelight", "No data available")
             }
-
+            if (readyForSlides.risingEdge() && gamepad1.a) {
+                //125.6 mm circumference
+                //8192 CPR
+                val ticks = 8192.0 * (milimeters / 125.6)
+                if (ticks != 0.0) {
+                    hslides.setSetpoint(-11_000.0 - ticks)
+                }
+            }
+            telemetry.addData("Milimeters", milimeters.roundToInt())
+            telemetry.addData("setpoint", hslides.getSetpoint().roundToInt())
             telemetry.update()
         }
         limelight!!.stop()
