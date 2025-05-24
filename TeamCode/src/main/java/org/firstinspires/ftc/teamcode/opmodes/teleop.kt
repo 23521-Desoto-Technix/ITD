@@ -377,13 +377,17 @@ class teleop: LinearOpMode() {
                 State.INTAKING_SPEC -> {
                     if (tssc.seconds() > 0.4 && tssc.seconds() < 0.5) { //CHANGE THIS TO CHANGE DELAY
                         if (intakeSS.state) {
+                            hslides.setSetpoint(0.0)
                             intake.update(Intake.state.PASSTHROUGH_INSIDE)
                         } else {
+                            hslides.setSetpoint(-1_000.0)
                             intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
                         }
+                    } else {
+                        hslides.setSetpoint(0.0)
                     }
                     vslides.setSetpoint(-25_600.0)
-                    hslides.setSetpoint(-1_000.0)
+
                     outtake.update(Outtake.state.INTAKING)
                     /*if (dig0.state || dig1.state) {
                         outtakeSS.swap()
