@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.IntakeV2
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
+import org.firstinspires.ftc.teamcode.subsystems.OuttakeV2
 import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.PID
@@ -69,7 +70,8 @@ class teleop: LinearOpMode() {
         //Only ever have one of these two active at once
         //val intake = Intake(hardwareMap)
         val intake = IntakeV2(hardwareMap)
-        val outtake = Outtake(hardwareMap)
+        //val outtake = Outtake(hardwareMap)
+        val outtake = OuttakeV2(hardwareMap)
         val headingPID = PID(2.0, 0.0, 0.1)
         //TODO
         var slideMode = SlideMode.NORMAL
