@@ -60,7 +60,7 @@ class teleop: LinearOpMode() {
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
         val intakeClaw = hardwareMap.servo["intakeClaw"]
-        val intakeSS = ServoSwap(intakeClaw, 0.85, 0.38)
+        val intakeSS = ServoSwap(intakeClaw, 0.85, 0.34)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
         val outtakeSS = ServoSwap(outtakeClaw, 0.33, .79)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
