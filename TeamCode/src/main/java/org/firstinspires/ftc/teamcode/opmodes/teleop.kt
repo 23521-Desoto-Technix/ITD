@@ -59,7 +59,7 @@ class teleop: LinearOpMode() {
         val leftRGB = hardwareMap.servo["LeftRGB"]
         val rightRGB = hardwareMap.servo["RightRGB"]
         val intakeClaw = hardwareMap.servo["intakeClaw"]
-        val intakeSS = ServoSwap(intakeClaw, 0.85, 0.35)
+        val intakeSS = ServoSwap(intakeClaw, 0.85, 0.38)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
         val outtakeSS = ServoSwap(outtakeClaw, 0.33, .79)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
@@ -386,7 +386,7 @@ class teleop: LinearOpMode() {
                     } else {
                         hslides.setSetpoint(0.0)
                     }
-                    vslides.setSetpoint(-25_600.0)
+                    vslides.setSetpoint(0.0)
 
                     outtake.update(Outtake.state.INTAKING)
                     /*if (dig0.state || dig1.state) {
@@ -401,7 +401,7 @@ class teleop: LinearOpMode() {
                 }
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
-                        vslides.setSetpoint(-50_000.0)
+                        vslides.setSetpoint(-47_000.0)
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
                             outtake.update(Outtake.state.TRANSFERED)
