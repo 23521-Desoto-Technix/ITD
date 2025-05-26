@@ -61,7 +61,7 @@ class teleop: LinearOpMode() {
         val intakeClaw = hardwareMap.servo["intakeClaw"]
         val intakeSS = ServoSwap(intakeClaw, 0.85, 0.35)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
-        val outtakeSS = ServoSwap(outtakeClaw, 0.73, 1.0)
+        val outtakeSS = ServoSwap(outtakeClaw, 0.33, .79)
         val odo = hardwareMap.get(GoBildaPinpointDriver::class.java, "odo")
         odo.setPosition(Pose2D(DistanceUnit.CM,0.0,0.0,AngleUnit.RADIANS, dataStorage.angle))
         val vslides = VerticalSlides(hardwareMap, telemetry)
