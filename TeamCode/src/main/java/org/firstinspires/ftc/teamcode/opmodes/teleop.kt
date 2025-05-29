@@ -388,7 +388,7 @@ class teleop: LinearOpMode() {
                     } else {
                         hslides.setSetpoint(0.0)
                     }
-                    vslides.setSetpoint(-20_000.0)
+                    vslides.setSetpoint(-26_000.0)
 
                     outtake.update(Outtake.state.INTAKING)
                     /*if (dig0.state || dig1.state) {
@@ -403,7 +403,7 @@ class teleop: LinearOpMode() {
                 }
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
-                        vslides.setSetpoint(-47_000.0)
+                        vslides.setSetpoint(-49_000.0)
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
                             outtake.update(Outtake.state.TRANSFERED)
