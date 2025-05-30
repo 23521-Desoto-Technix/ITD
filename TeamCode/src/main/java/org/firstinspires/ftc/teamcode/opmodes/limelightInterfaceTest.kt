@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import com.qualcomm.hardware.limelightvision.LLResult
-import com.qualcomm.hardware.limelightvision.LLResultTypes
 import com.qualcomm.hardware.limelightvision.LLStatus
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.PID
 import org.firstinspires.ftc.teamcode.utils.ServoSwap
 import kotlin.math.abs
-import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.math.tan
 
@@ -29,7 +27,7 @@ class limelight : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     public override fun runOpMode() {
-        val pid = PID(0.12,0.0,0.006)
+        val pid = PID(0.12,0.0,0.008)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
         leftFront = hardwareMap.get(DcMotor::class.java, "frontLeft")
@@ -53,14 +51,18 @@ class limelight : LinearOpMode() {
         telemetry.addData(">", "Robot Ready.  Press Play.")
         telemetry.update()
         hslides.resetEncoder()
-        waitForStart()
         intake.update(Intake.state.SCANNING)
         hslides.setSetpoint(0.0)
-        var milimeters = 0.0
+        var milimetersVertical = 0.0
+        var milimetersLateral = 0.0
         var angle = 0.0
+        var out = false
         var dived = false
         var grabbed = false
         val time = ElapsedTime()
+        intake.wrist(0.5)
+
+        waitForStart()
         while (opModeIsActive()) {
             val status: LLStatus = limelight!!.getStatus()
             hslides.update()
@@ -94,24 +96,33 @@ class limelight : LinearOpMode() {
                 ty *= -1
                 ty /= 2
                 tx /= 2
+                tx += 0.5
                 telemetry.addData("tx", tx)
                 telemetry.addData("ty", ty)
 
                 if (result.pythonOutput.get(7) != 0.0) {
                     readyForSlides.update(abs(tx) < 1.0 && hslides.getSetpoint() == 0.0)
+                    milimetersLateral = (325 * tan(Math.toRadians(35 + ty))) * tan(Math.toRadians(tx))
                     if (readyForSlides.risingEdge() && result.pythonOutput.get(7) != 0.0) {
-                        milimeters = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
+                        milimetersVertical = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
                     }
                     telemetry.addData("raw", result.pythonOutput.get(7))
+                    telemetry.addData("Lateral", milimetersLateral)
                     if (hslides.getSetpoint() == 0.0) {
                         angle = result.pythonOutput.get(7) / 90 / 4
                     }
-                    telemetry.addLine((round(325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))).toString())
+                    //telemetry.addLine((round(325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))).toString())
                     if (gamepad1.a && hslides.getSetpoint() == 0.0) {
                         // Simple proportional control for strafing
                         // Adjust Kp as needed
-                        val drivePower = pid.calculate(tx)
-
+                        var drivePower = pid.calculate(milimetersLateral * 0.3)
+                        val minimum = 0.12
+                        if (drivePower < minimum && drivePower > 0.0) {
+                            drivePower = minimum
+                        }
+                        if (drivePower > -minimum && drivePower < 0.0) {
+                            drivePower = -minimum
+                        }
                         // Mecanum drive logic for strafing
                         leftFront?.power = drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
                         rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
@@ -132,31 +143,34 @@ class limelight : LinearOpMode() {
                 rightRear?.power = 0.0
                 //telemetry.addData("Limelight", "No data available")
             }
-            if (readyForSlides.risingEdge() && gamepad1.a && abs(pid.derivative) < 100.0) {
+            if (readyForSlides.risingEdge() && gamepad1.a && abs(pid.derivative) < 75.0) {
                 //125.6 mm circumference
                 //8192 CPR
-                val ticks = 8192.0 * (milimeters / 125.6)
+                val ticks = 8192.0 * (milimetersVertical / 125.6)
                 if (ticks != 0.0) {
-                    hslides.setSetpoint(-7_000.0 - ticks)
+                    hslides.setSetpoint(-8_000.0 - ticks)
+                    time.reset()
+                    out = true
                 }
 
             }
-            if (abs(hslides.pid.error) < 75.0 && hslides.pid.derivative < 1.0 && hslides.getSetpoint() != 0.0 && !dived) {
+            if (time.milliseconds() > 300 && !dived && out) {
                 intake.update(Intake.state.DIVING)
                 dived = true
-                time.reset()
             }
-            if (time.milliseconds() > 500 && dived && !grabbed) {
+            if (time.milliseconds() > 500 && dived && !grabbed && out) {
                 intakeSS.swap()
                 grabbed = true
             }
-            if (time.milliseconds() > 1000 && dived) {
+            if (time.milliseconds() > 600 && dived && out) {
                 intake.update(Intake.state.IDLE)
             }
             telemetry.addData("error", abs(hslides.pid.error))
             telemetry.addData("speed", hslides.pid.derivative)
-            intake.wrist(0.5 + angle)
-            telemetry.addData("Milimeters", milimeters.roundToInt())
+            if (out) {
+                intake.wrist(0.5 + angle)
+            }
+            telemetry.addData("Milimeters", milimetersVertical.roundToInt())
             telemetry.addData("setpoint", hslides.getSetpoint().roundToInt())
             telemetry.addData("angle", angle)
             telemetry.update()

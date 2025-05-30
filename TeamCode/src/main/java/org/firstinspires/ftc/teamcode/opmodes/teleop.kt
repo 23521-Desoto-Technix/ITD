@@ -146,7 +146,7 @@ class teleop: LinearOpMode() {
             rotX *= 1.1
             val denominator = max(abs(rotY) + abs(rotX) + abs(rx), 1.0)
             var mult = 1.0
-            if (gamepad1.right_bumper) {
+            if (gamepad1.right_bumper || state == State.SCANNING) {
                 mult = 0.35
                 frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 backLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -263,7 +263,7 @@ class teleop: LinearOpMode() {
                 State.SCANNING -> {
                     vslides.update()
                     if (specaroni) {
-                        hslides.setPower((gamepad2.left_trigger-gamepad2.right_trigger)/2.toDouble())
+                        hslides.setPower((gamepad2.left_trigger-gamepad2.right_trigger).toDouble())
                     } else {
                         hslides.update()
                     }
@@ -403,7 +403,6 @@ class teleop: LinearOpMode() {
                 }
                 State.GRABBED_SPEC -> {
                     if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
-                        vslides.setSetpoint(-49_000.0)
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
                             outtake.update(Outtake.state.TRANSFERED)
@@ -411,7 +410,8 @@ class teleop: LinearOpMode() {
                             state = State.IDLE
                         }
                     } else if(tssc.seconds() > 0.2) {
-                        vslides.setSetpoint(-40_000.0)
+                        intake.update(Intake.state.IDLE)
+                        vslides.setSetpoint(-49_000.0)
                     }
                 }
                 State.LOCKED -> {
