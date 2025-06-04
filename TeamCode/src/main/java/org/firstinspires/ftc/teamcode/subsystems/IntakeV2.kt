@@ -53,13 +53,13 @@ class IntakeV2(hwmap: HardwareMap) {
                 wrist.position = 1.0
             }
             Intake.state.PASSTHROUGH_OUTSIDE -> {
-                arm.position = 0.00
-                elbow.position = .88
+                arm.position = 0.0
+                elbow.position = 0.88
                 wrist.position = 0.0
             }
             Intake.state.CAMERA -> {
-                arm.position = 0.0
-                elbow.position = 0.57
+                arm.position = 0.19
+                elbow.position = 0.24
             }
         }
     }

@@ -27,7 +27,7 @@ class limelight : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     public override fun runOpMode() {
-        val pid = PID(0.12,0.0,0.008)
+        val pid = PID(0.15,0.0,0.009)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
         limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
         leftFront = hardwareMap.get(DcMotor::class.java, "frontLeft")
@@ -51,7 +51,8 @@ class limelight : LinearOpMode() {
         telemetry.addData(">", "Robot Ready.  Press Play.")
         telemetry.update()
         hslides.resetEncoder()
-        intake.update(Intake.state.SCANNING)
+        intake.update(Intake.state.CAMERA)
+        intake.wrist(0.25)
         hslides.setSetpoint(0.0)
         var milimetersVertical = 0.0
         var milimetersLateral = 0.0
@@ -59,10 +60,12 @@ class limelight : LinearOpMode() {
         var out = false
         var dived = false
         var grabbed = false
-        val time = ElapsedTime()
-        intake.wrist(0.5)
+        val grabTimer = ElapsedTime()
+        val slideTimer = ElapsedTime()
+        intakeSS.swap()
 
         waitForStart()
+        intakeSS.swap()
         while (opModeIsActive()) {
             val status: LLStatus = limelight!!.getStatus()
             hslides.update()
@@ -84,25 +87,27 @@ class limelight : LinearOpMode() {
                 telemetry.addData("Parse Latency", parseLatency)
                 telemetry.addData("valid", result.isValid())
                 telemetry.addData("python", result.pythonOutput.get(7))
-                var tx = result.pythonOutput.get(1)
-                var ty = result.pythonOutput.get(2)
+                var tx = result.pythonOutput.get(5)
+                var ty = result.pythonOutput.get(6)
                 ty -= 480/2
                 tx -= 640/2
                 ty /= 480/2
                 tx /= 640/2
                 tx *= 54.5
                 ty *= 42.0
-                tx -= 18.0
+                //tx -= 18.0
                 ty *= -1
                 ty /= 2
                 tx /= 2
-                tx += 0.5
                 telemetry.addData("tx", tx)
                 telemetry.addData("ty", ty)
 
                 if (result.pythonOutput.get(7) != 0.0) {
-                    readyForSlides.update(abs(tx) < 1.0 && hslides.getSetpoint() == 0.0)
-                    milimetersLateral = (325 * tan(Math.toRadians(35 + ty))) * tan(Math.toRadians(tx))
+                    milimetersLateral = ((325 * tan(Math.toRadians(35 + ty))) * tan(Math.toRadians(tx))) - 50
+                    if (abs(milimetersLateral) < 5.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 500) {
+                        slideTimer.reset()
+                    }
+                    readyForSlides.update(abs(milimetersLateral) < 5.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 200)
                     if (readyForSlides.risingEdge() && result.pythonOutput.get(7) != 0.0) {
                         milimetersVertical = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
                     }
@@ -116,18 +121,26 @@ class limelight : LinearOpMode() {
                         // Simple proportional control for strafing
                         // Adjust Kp as needed
                         var drivePower = pid.calculate(milimetersLateral * 0.3)
-                        val minimum = 0.12
+                        val minimum = 0.17
                         if (drivePower < minimum && drivePower > 0.0) {
                             drivePower = minimum
                         }
                         if (drivePower > -minimum && drivePower < 0.0) {
                             drivePower = -minimum
                         }
-                        // Mecanum drive logic for strafing
-                        leftFront?.power = drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
-                        rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
-                        leftRear?.power = -drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
-                        rightRear?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                        telemetry.addData("valid", result.pythonOutput.get(0))
+                        if (result.pythonOutput.get(0).toInt() == 0) {
+                            leftFront?.power = 0.0
+                            rightFront?.power = 0.0
+                            leftRear?.power = 0.0
+                            rightRear?.power = 0.0
+                        } else {
+                            // Mecanum drive logic for strafing
+                            leftFront?.power = drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                            rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                            leftRear?.power = -drivePower - (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                            rightRear?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.1)
+                        }
                     } else {
                         leftFront?.power = -0.1
                         rightFront?.power = 0.1
@@ -148,22 +161,32 @@ class limelight : LinearOpMode() {
                 //8192 CPR
                 val ticks = 8192.0 * (milimetersVertical / 125.6)
                 if (ticks != 0.0) {
-                    hslides.setSetpoint(-8_000.0 - ticks)
-                    time.reset()
+                    hslides.setSetpoint(-10_000.0 - ticks)
+                    grabTimer.reset()
+                    intake.update(Intake.state.SCANNING)
                     out = true
                 }
 
             }
-            if (time.milliseconds() > 300 && !dived && out) {
+            if (grabTimer.milliseconds() > 300 && !dived && out) {
                 intake.update(Intake.state.DIVING)
                 dived = true
             }
-            if (time.milliseconds() > 500 && dived && !grabbed && out) {
+            if (grabTimer.milliseconds() > 500 && dived && !grabbed && out) {
                 intakeSS.swap()
                 grabbed = true
             }
-            if (time.milliseconds() > 600 && dived && out) {
-                intake.update(Intake.state.IDLE)
+            if (grabTimer.milliseconds() > 600 && dived && out) {
+                intake.update(Intake.state.OUT)
+            }
+            if (grabTimer.milliseconds() > 1600 && dived && out) {
+                dived = false
+                out = false
+                grabbed = false
+                intakeSS.swap()
+                intake.update(Intake.state.CAMERA)
+                hslides.setSetpoint(0.0)
+                intake.wrist(0.25)
             }
             telemetry.addData("error", abs(hslides.pid.error))
             telemetry.addData("speed", hslides.pid.derivative)
