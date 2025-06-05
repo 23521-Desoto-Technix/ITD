@@ -58,8 +58,8 @@ class IntakeV2(hwmap: HardwareMap) {
                 wrist.position = 0.0
             }
             Intake.state.CAMERA -> {
-                arm.position = 0.19
-                elbow.position = 0.24
+                arm.position = 0.00
+                elbow.position = 0.55
             }
         }
     }
