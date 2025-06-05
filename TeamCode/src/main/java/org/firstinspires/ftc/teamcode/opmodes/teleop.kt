@@ -287,7 +287,9 @@ class teleop: LinearOpMode() {
                 State.TRANSFERRING_SAM -> {
                     telemetry.addData("Iclaw", intakeSS.state)
                     vslides.setSetpoint(0.0)
-                    outtakeSS.set(false)
+                    if (tssc.seconds() < .7) {
+                        outtakeSS.set(false)
+                    }
                     outtake.update(Outtake.state.TRANSFERING)
                     if (intakeSS.state) {
                         if (tssc.seconds() > 0.1) {
