@@ -298,12 +298,12 @@ class teleop: LinearOpMode() {
                         intake.update(Intake.state.TRANSFERING_INSIDE)
                     } else {
                         if (tssc.seconds() > 0.1) {
-                            hslides.setSetpoint(-0_500.0)
+                            hslides.setSetpoint(-0_300.0)
                         }
                         intake.update(Intake.state.TRANSFERING_OUTSIDE)
                     }
                     // || tssc.seconds() > 0.6
-                    if (tssc.seconds() > .8) {
+                    if (tssc.seconds() > .6) {
                         outtakeSS.set(true)
                     }
                     if (gamepad2.dpad_right || tssc.seconds() > .9) {
