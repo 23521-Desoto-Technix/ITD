@@ -306,7 +306,7 @@ class teleop: LinearOpMode() {
                     if (tssc.seconds() > .6) {
                         outtakeSS.set(true)
                     }
-                    if (gamepad2.dpad_right || tssc.seconds() > .9) {
+                    if (gamepad2.dpad_right || tssc.seconds() > .65) {
                         outtakeSS.set(true)
                         intakeSS.swap()
                         tssc.reset()
