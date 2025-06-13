@@ -287,21 +287,26 @@ class teleop: LinearOpMode() {
                 State.TRANSFERRING_SAM -> {
                     telemetry.addData("Iclaw", intakeSS.state)
                     vslides.setSetpoint(0.0)
-                    outtakeSS.set(false)
+                    if (tssc.seconds() < .7) {
+                        outtakeSS.set(false)
+                    }
                     outtake.update(Outtake.state.TRANSFERING)
                     if (intakeSS.state) {
                         if (tssc.seconds() > 0.1) {
-                            hslides.setSetpoint(-1_000.0)
+                            hslides.setSetpoint(-1_100.0)
                         }
                         intake.update(Intake.state.TRANSFERING_INSIDE)
                     } else {
                         if (tssc.seconds() > 0.1) {
-                            hslides.setSetpoint(0_200.0)
+                            hslides.setSetpoint(-0_300.0)
                         }
                         intake.update(Intake.state.TRANSFERING_OUTSIDE)
                     }
                     // || tssc.seconds() > 0.6
-                    if (gamepad2.dpad_right || tssc.seconds() > .6) {
+                    if (tssc.seconds() > .6) {
+                        outtakeSS.set(true)
+                    }
+                    if (gamepad2.dpad_right || tssc.seconds() > .65) {
                         outtakeSS.set(true)
                         intakeSS.swap()
                         tssc.reset()
@@ -402,7 +407,7 @@ class teleop: LinearOpMode() {
                     }
                 }
                 State.GRABBED_SPEC -> {
-                    if (tssc.seconds() > 0.8) { //TODO add laser rangefinder delay
+                    if (tssc.seconds() > .8) { //TODO add laser rangefinder delay
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
                             outtake.update(Outtake.state.TRANSFERED)

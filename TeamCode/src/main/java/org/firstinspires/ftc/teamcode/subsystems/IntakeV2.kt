@@ -29,12 +29,12 @@ class IntakeV2(hwmap: HardwareMap) {
                 arm.position = 0.32
             }
             Intake.state.TRANSFERING_INSIDE -> {
-                arm.position = 0.12
-                elbow.position = 0.8
+                arm.position = 0.11
+                elbow.position = 0.81
                 wrist.position = 0.77
             }
             Intake.state.TRANSFERING_OUTSIDE -> {
-                arm.position = 0.14
+                arm.position = 0.10
                 elbow.position = 0.8
                 wrist.position = 0.5
             }
@@ -58,8 +58,8 @@ class IntakeV2(hwmap: HardwareMap) {
                 wrist.position = 0.0
             }
             Intake.state.CAMERA -> {
-                arm.position = 0.19
-                elbow.position = 0.24
+                arm.position = 0.00
+                elbow.position = 0.55
             }
         }
     }
