@@ -6,13 +6,11 @@ import com.pedropathing.follower.Follower
 import com.pedropathing.localization.Pose
 import com.pedropathing.pathgen.BezierCurve
 import com.pedropathing.pathgen.BezierLine
-import com.pedropathing.pathgen.Point
 import com.pedropathing.util.Constants
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DigitalChannel
-import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
@@ -26,9 +24,17 @@ class `5specimen` : LinearOpMode() {
     override fun runOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
+
+        val spikeOnePose = Pose(68.0, 22.0, Math.toRadians(0.0))
+        val pushOnePose = Pose(10.0, 22.0, Math.toRadians(0.0))
+        val spikeTwoPose = Pose(53.0, 16.0, Math.toRadians(0.0))
+        val pushTwoPose = Pose(20.0, 16.0, Math.toRadians(0.0))
+        val spikeThreePose = Pose(53.0, 8.2, Math.toRadians(0.0))
+        val pushThreePose = Pose(0.0, 9.0, Math.toRadians(0.0))
+
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
-        val scorePose = Pose(42.0, 66.0, Math.toRadians(0.0))
-        val pickupPose = Pose(5.0, 30.0)
+        val scorePose = Pose(42.0, 70.0, Math.toRadians(0.0))
+        val pickupPose = Pose(0.0, 38.0)
         val telemetryA: Telemetry =
             MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry())
         follower.setStartingPose(startPose)
@@ -42,13 +48,14 @@ class `5specimen` : LinearOpMode() {
         outtake.update(Outtake.state.INIT)
         val vslides = VerticalSlides(hardwareMap, telemetry)
         val hslides = HorizontalSlides(hardwareMap, telemetry)
-        val touch = hardwareMap.touchSensor.get("backTouch")
+        val backTouch = hardwareMap.touchSensor.get("backTouch")
+        val leftTouch = hardwareMap.touchSensor.get("leftTouch")
+        val rightTouch = hardwareMap.touchSensor.get("rightTouch")
         hslides.resetEncoder()
         vslides.resetEncoder()
-        hslides.setSetpoint(-1_000.0)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
         val intakeClaw = hardwareMap.servo["intakeClaw"]
-        outtakeClaw.position = 0.65
+        outtakeClaw.position = 0.58
         intakeClaw.position = 0.68
         val dig0 = hardwareMap.get(DigitalChannel::class.java, "dig0")
         val dig1 = hardwareMap.get(DigitalChannel::class.java, "dig1")
@@ -58,377 +65,221 @@ class `5specimen` : LinearOpMode() {
         for (hub in allHubs) {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
-        val startToScore = follower.pathBuilder()
-            .addPath( // Line 1
+        fun update() {
+            vslides.update()
+            hslides.update()
+            follower.update()
+            //follower.telemetryDebug(telemetryA)
+            telemetry.addData("X", follower.pose.x)
+            telemetry.addData("Y", follower.pose.y)
+            telemetry.addData("Heading", follower.pose.heading)
+            for (hub in allHubs) {
+                hub.clearBulkCache()
+            }
+            telemetry.update()
+        }
+        val path1 = follower.pathBuilder()
+            .addPath(
                 BezierLine(
-                    Point(startPose),
-                    Point(scorePose)
+                    startPose,
+                    Pose(42.0, 66.0, Math.toRadians(0.0))
                 )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push0 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(scorePose),
-                    Point(Pose(2.0, 40.0)),
-                    //Point(Pose(90.0, 23.0)),
-                    Point(Pose(58.0, 27.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push1 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(48.0, 23.0)),
-                    Point(Pose(20.0, 23.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push2 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(20.0, 23.0)),
-                    Point(Pose(62.0, 28.0)),
-                    Point(Pose(55.0, 13.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push3 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(55.0, 13.0)),
-                    Point(Pose(20.0, 13.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push4 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(20.0, 13.0)),
-                    Point(Pose(62.0, 13.0)),
-                    Point(Pose(55.0, 7.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push5 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(55.0, 7.0)),
-                    Point(Pose(22.0, 7.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push6 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(15.0, 10.0)),
-                    Point(Pose(15.0, 20.0)),
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val push7 = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(Pose(15.0, 30.0)),
-                    //Point(Pose(18.0, 30.0)),
-                    Point(pickupPose)
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val score = follower.pathBuilder()
-            .addPath( // Line 1
-                BezierCurve(
-                    Point(pickupPose),
-                    Point(Pose(20.0, 70.0)),
-                    Point(Pose(42.0, 70.0))
-                )
-            )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
-            .build()
-        val hp = follower.pathBuilder()
+            ).build()
+        val path2 = follower.pathBuilder()
             .addPath(
                 BezierCurve(
-                    Point(Pose(42.0, 70.0)),
-                    Point(Pose(10.0, 66.0)),
-                    Point(Pose(30.0, 40.0)),
-                    Point(pickupPose),
+                    scorePose,
+                    Pose(15.0, 42.0, Math.toRadians(0.0)),
+                    spikeOnePose,
+                ),
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val path3 = follower.pathBuilder()
+            .addPath(
+                BezierLine(
+                    Pose(70.0, 22.0, Math.toRadians(0.0)),
+                    pushOnePose
                 )
             )
-            .setConstantHeadingInterpolation(Math.toRadians(0.0))
+            .setConstantHeadingInterpolation(0.0)
             .build()
+        val path4 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Pose(10.0, 22.0, Math.toRadians(0.0)),
+                    spikeOnePose,
+                    spikeTwoPose
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val path5 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Pose(60.0, 16.0, Math.toRadians(0.0)),
+                    pushTwoPose
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val path6 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    pushTwoPose,
+                    spikeTwoPose,
+                    spikeThreePose
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val path7 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    spikeThreePose,
+                    pushThreePose
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val path8 = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    Pose(5.0, 7.0),
+                    Pose(12.0, 50.0),
+                    scorePose,
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val pick = follower.pathBuilder()
+            .addPath(
+                BezierCurve(
+                    scorePose,
+                    Pose(30.0, 70.0),
+                    Pose(30.0, 30.0),
+                    pickupPose,
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        val score = follower.pathBuilder()
+            .addPath(
+                BezierLine(
+                    pickupPose,
+                    scorePose,
+                )
+            )
+            .setConstantHeadingInterpolation(0.0)
+            .build()
+        follower.followPath(path1)
         waitForStart()
+        hslides.setSetpoint(0.0)
+        vslides.setSetpoint(-49_000.0)
+        //follower.setMaxPower(0.8)
         outtake.update(Outtake.state.GRABBED)
-        leftRGB.position = 0.722
-        rightRGB.position = 0.722
-        follower.followPath(startToScore, 0.6, true)
-        vslides.setSetpoint(-51_000.0)
-        val timer = ElapsedTime()
-        val hertz = ElapsedTime()
         while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            telemetry.update()
-            if (follower.currentTValue > 0.95) {
+            update()
+            if (leftTouch.isPressed || rightTouch.isPressed) {
+                outtakeClaw.position = 0.8
                 break
             }
         }
+        follower.setMaxPower(1.0)
         vslides.setSetpoint(0.0)
-        outtakeClaw.position = 1.0
-        timer.reset()
-        follower.followPath(push0, true)
+        outtake.update(Outtake.state.INIT)
+        follower.followPath(path2)
         while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
+            update()
+            telemetry.addData("Y raw", follower.pose.y)
+            if (follower.pose.y < 33.0) {
+                break
             }
+        }
+        follower.followPath(path3)
+        while (!isStopRequested && follower.isBusy) {
+            if (follower.pose.x < 25.0) {
+                break
+            }
+            update()
+        }
+        follower.followPath(path4)
+        while (!isStopRequested && follower.isBusy) {
+            if (follower.currentTValue > 0.8) {
+                break
+            }
+            update()
+        }
+        follower.followPath(path5)
+        while (!isStopRequested && follower.isBusy) {
             if (follower.currentTValue > 0.9) {
                 break
             }
-            telemetry.update()
+            update()
         }
-        follower.followPath(push1, true)
+        follower.followPath(path6)
         while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            if (follower.currentTValue > 0.95) {
+            if (follower.currentTValue > 0.9) {
                 break
             }
-            telemetry.update()
+            update()
         }
-        follower.followPath(push2, true)
-        while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            if (follower.currentTValue > 0.95) {
-                break
-            }
-            telemetry.update()
-        }
-        follower.followPath(push3, true)
-        while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            if (follower.currentTValue > 0.95) {
-                break
-            }
-            telemetry.update()
-        }
-        follower.followPath(push4, true)
-        while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            if (follower.currentTValue > 0.95) {
-                break
-            }
-            telemetry.update()
-        }
+        follower.followPath(path7)
+        vslides.setSetpoint(-26_000.0)
         outtake.update(Outtake.state.INTAKING)
-        vslides.setSetpoint(-25_600.0)
-        follower.followPath(push5, true)
         while (!isStopRequested && follower.isBusy) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            if (follower.currentTValue > 0.9) {
+            if (backTouch.isPressed) {
                 break
             }
-            telemetry.update()
+            update()
         }
-        follower.followPath(push6, true)
-        while (!isStopRequested) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
+        follower.setMaxPower(1.0)
+        outtakeClaw.position = 0.58
+        sleep(100)
+        vslides.setSetpoint(-49_000.0)
+        follower.followPath(path8)
+        while (!isStopRequested && follower.isBusy) {
+            if (follower.pose.x > 12.0) {
+                outtake.update(Outtake.state.GRABBED)
             }
-            if (follower.currentTValue > 0.5) {
-                follower.setMaxPower(0.8)
-            }
-            if (follower.currentTValue > 0.9) {
+            update()
+            if (leftTouch.isPressed || rightTouch.isPressed) {
+                outtakeClaw.position = 0.8
                 break
             }
-            telemetry.update()
         }
-        follower.followPath(push7, true)
+        var counter = 0
         while (!isStopRequested) {
-            vslides.update()
-            hslides.update()
-            follower.update()
-            follower.telemetryDebug(telemetryA)
-            telemetry.addData("X", follower.pose.x)
-            telemetry.addData("Y", follower.pose.y)
-            telemetry.addData("Heading", follower.pose.heading)
-            telemetry.addData("Hertz", 1.0 / hertz.seconds())
-            hertz.reset()
-            for (hub in allHubs) {
-                hub.clearBulkCache()
-            }
-            follower.setMaxPower(0.5)
-            if (touch.isPressed) {
+            counter += 1
+            if (counter == 5) {
                 break
             }
-            telemetry.update()
-        }
-        var i = 0
-        //START SCORE LOOP
-        while (!isStopRequested) {
-            i += 1
-            leftRGB.position = 0.3
-            timer.reset()
-            outtakeClaw.position = 0.65
-            follower.holdPoint(Pose(42.0, 72.0))
+            follower.followPath(pick)
+            while (!isStopRequested && follower.isBusy) {
+                if (follower.pose.x < 35.0 && follower.pose.x > 33.0) {
+                    vslides.setSetpoint(-26_000.0)
+                    outtake.update(Outtake.state.INTAKING)
+                }
+                update()
+                if (backTouch.isPressed) {
+                    outtakeClaw.position = 0.58
+                    break
+                }
+            }
+            sleep(100)
+            vslides.setSetpoint(-49_000.0)
             follower.setMaxPower(1.0)
-            while (timer.seconds() < 0.3) {
-
-            }
-            vslides.setSetpoint(-40_000.0)
-            timer.reset()
-            while (!isStopRequested) {
-                vslides.update()
-                hslides.update()
-                follower.update()
-                //telemetry.addData("T", follower.currentTValue)
-                //telemetry.update()
-                follower.telemetryDebug(telemetryA)
-                hertz.reset()
-                for (hub in allHubs) {
-                    hub.clearBulkCache()
-                }
-                if (follower.pose.x > 10.0 && follower.pose.x < 11.0) {
+            follower.followPath(score)
+            while (!isStopRequested && follower.isBusy) {
+                update()
+                if (follower.pose.x > 12.0) {
                     outtake.update(Outtake.state.GRABBED)
-                    vslides.setSetpoint(-48_000.0)
                 }
-                //TODO
-                if (follower.pose.x > 42.0 || follower.velocity.magnitude < 0.3) {
+                if (leftTouch.isPressed || rightTouch.isPressed) {
+                    outtakeClaw.position = 0.8
                     break
                 }
             }
-            outtakeClaw.position = 1.0
-            leftRGB.position = 0.7
-            follower.followPath(hp, true)
-            while (!isStopRequested) {
-                if (!isStopRequested) {
-                    dataStorage.angle = follower.pose.heading
-                }
-                vslides.update()
-                hslides.update()
-                follower.update()
-                follower.telemetryDebug(telemetryA)
-                //telemetry.addData("T", follower.currentTValue)
-                //telemetry.update()
-                hertz.reset()
-                for (hub in allHubs) {
-                    hub.clearBulkCache()
-                }
-                if (follower.currentTValue > 0.3 && follower.currentTValue < 0.4) {
-                    if (i < 4) {
-                        outtake.update(Outtake.state.INTAKING)
-                        vslides.setSetpoint(-25_600.0)
-                    } else {
-                        outtake.update(Outtake.state.HOLDING)
-                        vslides.setSetpoint(0.0)
-                    }
-                }
-                if (follower.currentTValue > 0.7 && follower.currentTValue < 0.75 && i > 3) {
-                    break
-                }
-                if (follower.currentTValue > 0.6 && follower.currentTValue < 0.65 && i < 4) {
-                    follower.setMaxPower(0.6)
-                }
-                if (touch.isPressed) {
-                    break
-                }
-            }
-            if (i > 3) {
-                break
-            }
-        }
-        if (!isStopRequested) {
-            dataStorage.angle = follower.pose.heading
         }
     }
-
 }

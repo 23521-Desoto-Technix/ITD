@@ -20,7 +20,7 @@ internal class HorizontalSlides(hwmap: HardwareMap, telem: Telemetry) {
 
     fun update() {
         horz.power = -pid.calculate(encoder.currentPosition.toDouble())
-        telem.addData("Encoder Horz", encoder.currentPosition)
+        //telem.addData("Encoder Horz", encoder.currentPosition)
     }
     fun setPower(power: Double) {
         horz.power = power

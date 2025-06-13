@@ -45,7 +45,7 @@ class `4sample` : LinearOpMode() {
         hslides.setSetpoint(-1_000.0)
         val outtakeClaw = hardwareMap.servo["outtakeClaw"]
         val intakeClaw = hardwareMap.servo["intakeClaw"]
-        outtakeClaw.position = 0.8
+        outtakeClaw.position = 0.58
         intakeClaw.position = 0.68
         val allHubs = hardwareMap.getAll(
             LynxModule::class.java
@@ -149,7 +149,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 1.0
+        outtakeClaw.position = 0.8
         timer.reset()
         while (timer.seconds() < 0.3) {
             vslides.update()
@@ -261,7 +261,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 0.8
+        outtakeClaw.position = 0.58
         timer.reset()
         while (!isStopRequested && timer.seconds() < 0.2) {
             vslides.update()
@@ -321,7 +321,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 1.0
+        outtakeClaw.position = 0.8
         timer.reset()
         while (!isStopRequested && timer.seconds() < 0.3) {
             vslides.update()
@@ -434,7 +434,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 0.8
+        outtakeClaw.position = 0.58
         timer.reset()
         while (!isStopRequested && timer.seconds() < 0.2) {
             vslides.update()
@@ -494,7 +494,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 1.0
+        outtakeClaw.position = 0.8
         timer.reset()
         while (!isStopRequested && timer.seconds() < 0.3) {
             vslides.update()
@@ -608,7 +608,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 0.8
+        outtakeClaw.position = 0.58
         timer.reset()
         while (!isStopRequested && timer.seconds() < 0.2) {
             vslides.update()
@@ -668,7 +668,7 @@ class `4sample` : LinearOpMode() {
             }
             telemetry.update()
         }
-        outtakeClaw.position = 1.0
+        outtakeClaw.position = 0.8
         timer.reset()
         while (!isStopRequested && timer.seconds() < 0.3) {
             vslides.update()

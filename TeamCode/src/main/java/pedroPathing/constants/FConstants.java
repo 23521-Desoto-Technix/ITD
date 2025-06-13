@@ -15,6 +15,8 @@ public class FConstants {
         FollowerConstants.rightFrontMotorName = "frontRight";
         FollowerConstants.rightRearMotorName = "backRight";
 
+        FollowerConstants.maxPower = 1.0;
+
         FollowerConstants.leftFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
         FollowerConstants.leftRearMotorDirection = DcMotorSimple.Direction.REVERSE;
         FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;

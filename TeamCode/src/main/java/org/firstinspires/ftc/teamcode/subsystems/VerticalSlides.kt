@@ -28,8 +28,8 @@ class VerticalSlides(hwmap: HardwareMap, telem: Telemetry) {
     }
 
     fun update() {
-        telem.addData("Encoder Vertical", encoder.currentPosition)
-        telem.addData("Error", abs(pid.getSetpoint() - encoder.currentPosition))
+        //telem.addData("Encoder Vertical", encoder.currentPosition)
+        //telem.addData("Error", abs(pid.getSetpoint() - encoder.currentPosition))
         val power = pid.calculate(encoder.currentPosition.toDouble()) / chub.getInputVoltage(VoltageUnit.VOLTS) * TUNED_VOLT
         if (abs(pid.getSetpoint() - encoder.currentPosition) < 1000) {
             v0.power = -FF

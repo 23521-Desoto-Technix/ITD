@@ -10,6 +10,7 @@ import com.pedropathing.pathgen.Point
 import com.pedropathing.util.Constants
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -22,6 +23,7 @@ import pedroPathing.constants.FConstants
 import pedroPathing.constants.LConstants
 
 @Autonomous(name = "5 Specimen No Preload")
+@Disabled
 class `5specimenNoPreload` : LinearOpMode() {
     override fun runOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
