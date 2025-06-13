@@ -303,10 +303,10 @@ class teleop: LinearOpMode() {
                         intake.update(Intake.state.TRANSFERING_OUTSIDE)
                     }
                     // || tssc.seconds() > 0.6
-                    if (tssc.seconds() > .6) {
+                    if (tssc.seconds() > .7) {
                         outtakeSS.set(true)
                     }
-                    if (gamepad2.dpad_right || tssc.seconds() > .65) {
+                    if (gamepad2.dpad_right || tssc.seconds() > .75) {
                         outtakeSS.set(true)
                         intakeSS.swap()
                         tssc.reset()
