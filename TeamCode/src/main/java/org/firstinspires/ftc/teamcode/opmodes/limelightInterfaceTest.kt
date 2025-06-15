@@ -188,8 +188,6 @@ class limelight : LinearOpMode() {
                 hslides.setSetpoint(0.0)
                 intake.wrist(0.25)
             }
-            telemetry.addData("error", abs(hslides.pid.error))
-            telemetry.addData("speed", hslides.pid.derivative)
             if (out) {
                 intake.wrist(0.5 + angle)
             }
