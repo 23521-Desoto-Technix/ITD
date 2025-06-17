@@ -322,7 +322,7 @@ class `5specimen` : LinearOpMode() {
                         if (hslides.getSetpoint() == 0.0) {
                             // Simple proportional control for strafing
                             // Adjust Kp as needed
-                            var drivePower = pid.calculate(milimetersLateral * 0.2)
+                            var drivePower = pid.calculate(milimetersLateral * 0.3)
                             val minimum = 0.13
                             if (drivePower < minimum && drivePower > 0.0) {
                                 drivePower = minimum
@@ -367,7 +367,7 @@ class `5specimen` : LinearOpMode() {
                     readynt = true
                     stableLateralTimer.reset()
                 }
-                if ((stableLateralTimer.milliseconds() > 2000) && readyForSlides.value() && !out) {
+                if ((stableLateralTimer.milliseconds() > 1000) && readyForSlides.value() && !out) {
                     //125.6 mm circumference
                     //8192 CPR
                     val ticks = 8192.0 * (milimetersVertical / 125.6)
