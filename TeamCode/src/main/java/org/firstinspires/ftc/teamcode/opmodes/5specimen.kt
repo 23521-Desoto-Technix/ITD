@@ -370,6 +370,10 @@ class `5specimen` : LinearOpMode() {
                 if ((stableLateralTimer.milliseconds() > 1000) && readyForSlides.value() && !out) {
                     //125.6 mm circumference
                     //8192 CPR
+                    leftFront?.power = 0.0
+                    rightFront?.power = 0.0
+                    leftRear?.power = 0.0
+                    rightRear?.power = 0.0
                     val ticks = 8192.0 * (milimetersVertical / 125.6)
                     if (ticks != 0.0) {
                         hslides.setSetpoint(-9_000.0 - ticks)
