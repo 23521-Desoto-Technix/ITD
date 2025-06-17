@@ -75,6 +75,8 @@ class teleop: LinearOpMode() {
         val unStucker = hardwareMap.servo["unStucker"]
         unStucker.position = 1.0
 
+        val stuckToggle = Detector()
+
         //val outtake = OuttakeV2(hardwareMap)
         val headingPID = PID(2.0, 0.0, 0.1)
         //TODO

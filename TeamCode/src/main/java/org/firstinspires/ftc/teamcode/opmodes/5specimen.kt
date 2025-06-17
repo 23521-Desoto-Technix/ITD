@@ -308,7 +308,7 @@ class `5specimen` : LinearOpMode() {
                         if (abs(milimetersLateral) < 2.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 500) {
                             slideTimer.reset()
                         }
-                        readyForSlides.update(abs(milimetersLateral) < 5.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 200)
+                        readyForSlides.update(abs(milimetersLateral) < 15.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 200)
                         if (readyForSlides.risingEdge() && result.pythonOutput.get(7) != 0.0) {
                             milimetersVertical = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
                         }
@@ -365,7 +365,7 @@ class `5specimen` : LinearOpMode() {
                 if (readyForSlides.risingEdge()) {
                     stableLateralTimer.reset()
                 }
-                if ((stableLateralTimer.milliseconds() > 2000) && readyForSlides.value() && abs(pid.derivative) < 25.0 && !out) {
+                if ((stableLateralTimer.milliseconds() > 2000) && readyForSlides.value() && !out) {
                     //125.6 mm circumference
                     //8192 CPR
                     val ticks = 8192.0 * (milimetersVertical / 125.6)
