@@ -59,6 +59,10 @@ class `5specimen` : LinearOpMode() {
         val rightRGB = hardwareMap.servo["RightRGB"]
         leftRGB.position = 0.5
         rightRGB.position = 0.5
+
+        val unSticker = hardwareMap.servo["unSticker"]
+        unSticker.position = 0.5
+
         val intake = IntakeV2(hardwareMap)
         val outtake = Outtake(hardwareMap)
         intake.update(Intake.state.IDLE)
