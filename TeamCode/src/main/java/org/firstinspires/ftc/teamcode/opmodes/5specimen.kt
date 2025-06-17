@@ -259,6 +259,7 @@ class `5specimen` : LinearOpMode() {
             val grabTimer = ElapsedTime()
             val slideTimer = ElapsedTime()
             var success = false
+            var readynt = false
             val readyForSlides = Detector()
 
             val pid = PID(0.15,0.0,0.009)
@@ -308,7 +309,7 @@ class `5specimen` : LinearOpMode() {
                         if (abs(milimetersLateral) < 2.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 500) {
                             slideTimer.reset()
                         }
-                        readyForSlides.update(abs(milimetersLateral) < 15.0 && hslides.getSetpoint() == 0.0 && slideTimer.milliseconds() > 200)
+                        readyForSlides.update(abs(milimetersLateral) < 15.0 && hslides.getSetpoint() == 0.0)
                         if (readyForSlides.risingEdge() && result.pythonOutput.get(7) != 0.0) {
                             milimetersVertical = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
                         }
@@ -362,7 +363,8 @@ class `5specimen` : LinearOpMode() {
                     }
                 } else {
                 }
-                if (readyForSlides.risingEdge()) {
+                if (readyForSlides.risingEdge() && !readynt) {
+                    readynt = true
                     stableLateralTimer.reset()
                 }
                 if ((stableLateralTimer.milliseconds() > 2000) && readyForSlides.value() && !out) {
