@@ -263,11 +263,13 @@ class `5specimen` : LinearOpMode() {
 
             val pid = PID(0.15,0.0,0.009)
 
-            val timeOut = ElapsedTime()
-            timeOut.reset()
+            val stableDrivetrainTimer = ElapsedTime()
+            stableDrivetrainTimer.reset()
+            val stableLateralTimer = ElapsedTime()
+            stableLateralTimer.reset()
             follower.breakFollowing()
             while (!isStopRequested) {
-                if (timeOut.milliseconds() > 500000) {
+                if (stableDrivetrainTimer.milliseconds() > 500000) {
                     break
                 }
                 hslides.update()
@@ -336,7 +338,7 @@ class `5specimen` : LinearOpMode() {
                                 rightRear?.power = 0.0
                             } else {
                                 // Mecanum drive logic for strafing
-                                if (timeOut.milliseconds() > 500) {
+                                if (stableDrivetrainTimer.milliseconds() > 500) {
                                     if (!drivePower.isNaN()) {
                                         leftFront?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.2)
                                         rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.2)
@@ -360,7 +362,10 @@ class `5specimen` : LinearOpMode() {
                     }
                 } else {
                 }
-                if (readyForSlides.risingEdge() && abs(pid.derivative) < 25.0 && !out) {
+                if (readyForSlides.risingEdge()) {
+                    stableLateralTimer.reset()
+                }
+                if ((stableLateralTimer.milliseconds() > 2000) && readyForSlides.value() && abs(pid.derivative) < 25.0 && !out) {
                     //125.6 mm circumference
                     //8192 CPR
                     val ticks = 8192.0 * (milimetersVertical / 125.6)
@@ -428,6 +433,7 @@ class `5specimen` : LinearOpMode() {
         }
         hslides.setSetpoint(0.0)
         ll2.state = false
+        limelight.stop()
         follower.setMaxPower(1.0)
         vslides.setSetpoint(0.0)
         outtake.update(Outtake.state.INIT)

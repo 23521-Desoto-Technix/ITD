@@ -10,4 +10,6 @@ class Detector {
     }
     fun risingEdge() = current && !previous
     fun fallingEdge() = !current && previous
+
+    fun value() = current
 }

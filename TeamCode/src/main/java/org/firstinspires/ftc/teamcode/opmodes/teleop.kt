@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlides
 import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.IntakeV2
 import org.firstinspires.ftc.teamcode.subsystems.Outtake
-import org.firstinspires.ftc.teamcode.subsystems.OuttakeV2
 import org.firstinspires.ftc.teamcode.subsystems.VerticalSlides
 import org.firstinspires.ftc.teamcode.utils.Detector
 import org.firstinspires.ftc.teamcode.utils.PID
@@ -42,7 +41,8 @@ class teleop: LinearOpMode() {
         DROPPING_SAM_LOW,
         IDLE,
         INTAKING_SPEC,
-        GRABBED_SPEC,
+        RAMMING_SPEC_HIGH,
+        RAMMING_SPEC_LOW,
         LOCKED,
         HOLDING
     }
@@ -257,7 +257,7 @@ class teleop: LinearOpMode() {
                         state == State.HOLDING ||
                         state == State.OUT ||
                         state == State.SCANNING ||
-                        state == State.GRABBED_SPEC) && dropper.risingEdge()) {
+                        state == State.RAMMING_SPEC_HIGH) && dropper.risingEdge()) {
                 outtakeSS.swap()
             }
             if (
@@ -414,10 +414,10 @@ class teleop: LinearOpMode() {
                     }*/
                     if (gamepad2.left_bumper) {
                         tssc.reset()
-                        state = State.GRABBED_SPEC
+                        state = State.RAMMING_SPEC_HIGH
                     }
                 }
-                State.GRABBED_SPEC -> {
+                State.RAMMING_SPEC_HIGH -> {
                     if (tssc.seconds() > .8) { //TODO add laser rangefinder delay
                         outtake.update(Outtake.state.GRABBED)
                         if (gamepad2.left_bumper || dropper.risingEdge()) {
@@ -428,6 +428,19 @@ class teleop: LinearOpMode() {
                     } else if(tssc.seconds() > 0.2) {
                         intake.update(Intake.state.IDLE)
                         vslides.setSetpoint(-49_000.0)
+                    }
+                    if (gamepad2.left_stick_button) {
+                        state = State.RAMMING_SPEC_LOW
+                        tssc.reset()
+                    }
+                }
+                State.RAMMING_SPEC_LOW -> {
+                    outtake.update(Outtake.state.GRABBED)
+                    vslides.setSetpoint(-10_000.0)
+                    if (gamepad2.left_bumper || dropper.risingEdge()) {
+                        outtake.update(Outtake.state.TRANSFERED)
+                        tssc.reset()
+                        state = State.IDLE
                     }
                 }
                 State.LOCKED -> {
