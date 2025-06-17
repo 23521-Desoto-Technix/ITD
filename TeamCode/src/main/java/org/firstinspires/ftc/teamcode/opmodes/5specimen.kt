@@ -270,7 +270,7 @@ class `5specimen` : LinearOpMode() {
             stableLateralTimer.reset()
             follower.breakFollowing()
             while (!isStopRequested) {
-                if (totalTimer.milliseconds() > 3000) {
+                if (totalTimer.milliseconds() > 4500) {
                     break
                 }
                 hslides.update()
