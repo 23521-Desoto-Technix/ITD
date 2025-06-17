@@ -71,6 +71,10 @@ class teleop: LinearOpMode() {
         //val intake = Intake(hardwareMap)
         val intake = IntakeV2(hardwareMap)
         val outtake = Outtake(hardwareMap)
+
+        val unStucker = hardwareMap.servo["unStucker"]
+        unStucker.position = 1.0
+
         //val outtake = OuttakeV2(hardwareMap)
         val headingPID = PID(2.0, 0.0, 0.1)
         //TODO
@@ -116,6 +120,13 @@ class teleop: LinearOpMode() {
                 leftRGB.position = 0.58
                 rightRGB.position = 0.58
             }
+
+            if (gamepad1.dpad_up) {
+                unStucker.position = 0.0
+            } else {
+                unStucker.position = 1.0
+            }
+
             odo.update()
             val botHeading = odo.position.getHeading(AngleUnit.RADIANS)
             val y = -gamepad1.left_stick_y.toDouble() // Remember, Y stick value is reversed
