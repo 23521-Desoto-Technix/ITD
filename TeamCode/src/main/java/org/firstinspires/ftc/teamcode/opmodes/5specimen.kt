@@ -264,13 +264,13 @@ class `5specimen` : LinearOpMode() {
 
             val pid = PID(0.15,0.0,0.009)
 
-            val stableDrivetrainTimer = ElapsedTime()
-            stableDrivetrainTimer.reset()
+            val totalTimer = ElapsedTime()
+            totalTimer.reset()
             val stableLateralTimer = ElapsedTime()
             stableLateralTimer.reset()
             follower.breakFollowing()
             while (!isStopRequested) {
-                if (stableDrivetrainTimer.milliseconds() > 500000) {
+                if (totalTimer.milliseconds() > 3000) {
                     break
                 }
                 hslides.update()
@@ -339,7 +339,7 @@ class `5specimen` : LinearOpMode() {
                                 rightRear?.power = 0.0
                             } else {
                                 // Mecanum drive logic for strafing
-                                if (stableDrivetrainTimer.milliseconds() > 500) {
+                                if (totalTimer.milliseconds() > 500) {
                                     if (!drivePower.isNaN()) {
                                         leftFront?.power = -drivePower + 0.2
                                         rightFront?.power = drivePower + 0.2
