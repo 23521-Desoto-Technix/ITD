@@ -341,10 +341,10 @@ class `5specimen` : LinearOpMode() {
                                 // Mecanum drive logic for strafing
                                 if (stableDrivetrainTimer.milliseconds() > 500) {
                                     if (!drivePower.isNaN()) {
-                                        leftFront?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.2)
-                                        rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.2)
-                                        leftRear?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.2)
-                                        rightRear?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.2)
+                                        leftFront?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.3)
+                                        rightFront?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.3)
+                                        leftRear?.power = drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.3)
+                                        rightRear?.power = -drivePower + (Math.abs(drivePower) * 0.2).coerceAtLeast(0.3)
                                     } else {
                                         leftFront?.power = 0.2
                                         rightFront?.power = 0.2
@@ -367,7 +367,7 @@ class `5specimen` : LinearOpMode() {
                     readynt = true
                     stableLateralTimer.reset()
                 }
-                if ((stableLateralTimer.milliseconds() > 2000) && readyForSlides.value() && !out) {
+                if ((stableLateralTimer.milliseconds() > 1200) && readyForSlides.value() && !out) {
                     //125.6 mm circumference
                     //8192 CPR
                     leftFront?.power = 0.1
