@@ -408,7 +408,7 @@ class `5specimen` : LinearOpMode() {
             follower.followPath(pick)
             val drop = ElapsedTime()
             while (!isStopRequested && follower.isBusy) {
-                if (follower.pose.x < 30.0 && follower.pose.x > 28.0) {
+                if (follower.pose.x < 35.0 && follower.pose.x > 33.0) {
                     vslides.setSetpoint(-26_000.0)
                     outtake.update(Outtake.state.INTAKING)
                     intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
