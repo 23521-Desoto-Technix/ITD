@@ -5,13 +5,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 
 @TeleOp
-@Disabled
 class touchy : LinearOpMode() {
     override fun runOpMode() {
-        val touch = hardwareMap.touchSensor.get("backTouch")
+        val backTouch = hardwareMap.touchSensor.get("backTouch")
+        val leftTouch = hardwareMap.touchSensor.get("leftTouch")
+        val rightTouch = hardwareMap.touchSensor.get("rightTouch")
         waitForStart()
         while (opModeIsActive()) {
-            telemetry.addData("Touch Sensor", touch.isPressed)
+            telemetry.addData("back", backTouch.isPressed)
+            telemetry.addData("left", leftTouch.isPressed)
+            telemetry.addData("right", rightTouch.isPressed)
             telemetry.update()
         }
     }

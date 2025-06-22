@@ -87,7 +87,7 @@ class `5specimen` : LinearOpMode() {
             LynxModule::class.java
         )
 
-        var mode = Mode.FIVE
+        var mode = Mode.RED
 
         for (hub in allHubs) {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
@@ -249,7 +249,13 @@ class `5specimen` : LinearOpMode() {
                 break
             }
         }
+        outtakeClaw.position = 0.8
         if (mode != Mode.FIVE) {
+            if (mode == Mode.RED) {
+                limelight.updatePythonInputs(doubleArrayOf(0.0))
+            } else {
+                limelight.updatePythonInputs(doubleArrayOf(1.0))
+            }
             var milimetersVertical = 0.0
             var milimetersLateral = 0.0
             var angle = 0.0
@@ -269,25 +275,39 @@ class `5specimen` : LinearOpMode() {
             val stableLateralTimer = ElapsedTime()
             stableLateralTimer.reset()
             follower.breakFollowing()
+            follower.setMaxPower(0.0)
             while (!isStopRequested) {
-                if (totalTimer.milliseconds() > 4500) {
+                telemetry.update()
+                if (totalTimer.milliseconds() > 4000) {
                     break
                 }
-                hslides.update()
+                update()
+                telemetry.addData("Heading", Math.toDegrees(follower.pose.heading))
+
+                var fromZero = Math.toDegrees(abs(follower.pose.heading))
+
+                if (fromZero > 180.0) {
+                    fromZero = 360 - fromZero
+                }
+
+                if (fromZero < 15.0 || totalTimer.milliseconds() < 500) {
+                } else {
+                    leftRGB.position = 0.0
+                    break
+                }
                 val result: LLResult? = limelight!!.getLatestResult()
                 if (result != null) {
                     for (hub in allHubs) {
                         hub.clearBulkCache()
                     }
-                    telemetry.update()
                     // Access general information
                     val captureLatency = result.getCaptureLatency()
                     val targetingLatency = result.getTargetingLatency()
                     val parseLatency = result.getParseLatency()
-                    telemetry.addData("LL Latency", captureLatency + targetingLatency)
-                    telemetry.addData("Parse Latency", parseLatency)
-                    telemetry.addData("valid", result.isValid())
-                    telemetry.addData("python", result.pythonOutput.get(7))
+                    //telemetry.addData("LL Latency", captureLatency + targetingLatency)
+                    //telemetry.addData("Parse Latency", parseLatency)
+                    //telemetry.addData("valid", result.isValid())
+                    //telemetry.addData("python", result.pythonOutput.get(7))
                     var tx = result.pythonOutput.get(5)
                     var ty = result.pythonOutput.get(6)
                     ty -= 480/2
@@ -301,8 +321,8 @@ class `5specimen` : LinearOpMode() {
                     ty /= 2
                     tx /= 2
 
-                    telemetry.addData("tx", tx)
-                    telemetry.addData("ty", ty)
+                    //telemetry.addData("tx", tx)
+                    //telemetry.addData("ty", ty)
 
                     if (result.pythonOutput.get(7) != 0.0) {
                         milimetersLateral = ((325 * tan(Math.toRadians(35 + ty))) * tan(Math.toRadians(tx))) - 50
@@ -313,8 +333,8 @@ class `5specimen` : LinearOpMode() {
                         if (readyForSlides.risingEdge() && result.pythonOutput.get(7) != 0.0) {
                             milimetersVertical = (325 * tan(Math.toRadians(35 + ty))) + (325 * tan(Math.toRadians(325.0)))
                         }
-                        telemetry.addData("raw", result.pythonOutput.get(7))
-                        telemetry.addData("Lateral", milimetersLateral)
+                        //telemetry.addData("raw", result.pythonOutput.get(7))
+                        //telemetry.addData("Lateral", milimetersLateral)
                         if (hslides.getSetpoint() == 0.0) {
                             angle = result.pythonOutput.get(7) / 90 / 4
                         }
@@ -331,7 +351,7 @@ class `5specimen` : LinearOpMode() {
                                 drivePower = -minimum
                             }
 
-                            telemetry.addData("valid", result.pythonOutput.get(0))
+                            //telemetry.addData("valid", result.pythonOutput.get(0))
                             if (result.pythonOutput.get(0).toInt() == 0) {
                                 leftFront?.power = 0.0
                                 rightFront?.power = 0.0
@@ -383,7 +403,7 @@ class `5specimen` : LinearOpMode() {
                     }
 
                 }
-                if (grabTimer.milliseconds() > 300 && !dived && out) {
+                if (grabTimer.milliseconds() > 400 && !dived && out) {
                     intake.update(Intake.state.DIVING)
                     dived = true
                 }
@@ -400,20 +420,21 @@ class `5specimen` : LinearOpMode() {
                 if (out) {
                     intake.wrist(0.5 + angle)
                 }
-                telemetry.addData("Milimeters", milimetersVertical.roundToInt())
-                telemetry.addData("setpoint", hslides.getSetpoint().roundToInt())
-                telemetry.addData("angle", angle)
+                //telemetry.addData("Milimeters", milimetersVertical.roundToInt())
+                //telemetry.addData("setpoint", hslides.getSetpoint().roundToInt())
+                //telemetry.addData("angle", angle)
             }
 
             follower.followPath(pick)
+            follower.setMaxPower(1.0)
             val drop = ElapsedTime()
             while (!isStopRequested && follower.isBusy) {
-                if (follower.pose.x < 30.0 && follower.pose.x > 28.0) {
+                if (follower.pose.x < 33.0 && follower.pose.x > 31.0) {
                     vslides.setSetpoint(-26_000.0)
                     outtake.update(Outtake.state.INTAKING)
                     intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
                 }
-                if (drop.milliseconds() > 2000) {
+                if (follower.pose.x < 30.0) {
                     intakeClaw.position = 0.85
                 }
                 update()
@@ -422,6 +443,7 @@ class `5specimen` : LinearOpMode() {
                     break
                 }
             }
+            outtakeClaw.position = 0.58
             sleep(100)
             vslides.setSetpoint(-49_000.0)
             follower.setMaxPower(1.0)
@@ -436,6 +458,7 @@ class `5specimen` : LinearOpMode() {
                     break
                 }
             }
+            outtakeClaw.position = 0.8
         }
         hslides.setSetpoint(0.0)
         ll2.state = false
@@ -484,6 +507,7 @@ class `5specimen` : LinearOpMode() {
         outtake.update(Outtake.state.INTAKING)
         while (!isStopRequested && follower.isBusy) {
             if (backTouch.isPressed) {
+                outtakeClaw.position = 0.58
                 break
             }
             update()
@@ -503,6 +527,7 @@ class `5specimen` : LinearOpMode() {
                 break
             }
         }
+        outtakeClaw.position = 0.8
         var counter = 0
         val max = 4
         while (!isStopRequested) {
@@ -524,6 +549,7 @@ class `5specimen` : LinearOpMode() {
                     break
                 }
             }
+            outtakeClaw.position = 0.58
             if (counter == max) {
                 break
             }
@@ -541,6 +567,7 @@ class `5specimen` : LinearOpMode() {
                     break
                 }
             }
+            outtakeClaw.position = 0.8
         }
     }
 }
