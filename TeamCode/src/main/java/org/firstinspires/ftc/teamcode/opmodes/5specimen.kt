@@ -279,6 +279,7 @@ class `5specimen` : LinearOpMode() {
             while (!isStopRequested) {
                 telemetry.update()
                 if (totalTimer.milliseconds() > 4000) {
+                    intake.update(Intake.state.IDLE)
                     break
                 }
                 update()
@@ -292,6 +293,7 @@ class `5specimen` : LinearOpMode() {
 
                 if (fromZero < 15.0 || totalTimer.milliseconds() < 500) {
                 } else {
+                    intake.update(Intake.state.IDLE)
                     leftRGB.position = 0.0
                     break
                 }
@@ -429,7 +431,7 @@ class `5specimen` : LinearOpMode() {
             follower.setMaxPower(1.0)
             val drop = ElapsedTime()
             while (!isStopRequested && follower.isBusy) {
-                if (follower.pose.x < 33.0 && follower.pose.x > 31.0) {
+                if (follower.pose.x < 31.5 && follower.pose.x > 31.0) {
                     vslides.setSetpoint(-26_000.0)
                     outtake.update(Outtake.state.INTAKING)
                     intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
