@@ -337,7 +337,7 @@ class teleop: LinearOpMode() {
                         outtake.update(Outtake.state.TRANSFERED)
                         vslides.setSetpoint(0.0)
                     }*/
-                    hslides.setSetpoint(-23_000.0)
+                    hslides.setSetpoint(-21_000.0)
                     //vslides.setSetpoint(0.0)
                     intake.update(Intake.state.OUT)
                     //outtake.update(Outtake.state.HOLDING)

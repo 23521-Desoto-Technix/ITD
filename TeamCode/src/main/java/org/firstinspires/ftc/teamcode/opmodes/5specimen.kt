@@ -29,7 +29,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.tan
 
-@Autonomous(name = "5 Specimen")
+@Autonomous(name = "Specimen Auto Vision")
 class `5specimen` : LinearOpMode() {
 
     enum class Mode {
@@ -46,8 +46,8 @@ class `5specimen` : LinearOpMode() {
         val pushOnePose = Pose(10.0, 22.0, Math.toRadians(0.0))
         val spikeTwoPose = Pose(53.0, 16.0, Math.toRadians(0.0))
         val pushTwoPose = Pose(20.0, 16.0, Math.toRadians(0.0))
-        val spikeThreePose = Pose(53.0, 8.2, Math.toRadians(0.0))
-        val pushThreePose = Pose(0.0, 9.0, Math.toRadians(0.0))
+        val spikeThreePose = Pose(53.0, 8.5, Math.toRadians(0.0))
+        val pushThreePose = Pose(0.0, 8.5, Math.toRadians(0.0))
 
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(42.0, 70.0, Math.toRadians(0.0))
@@ -252,9 +252,9 @@ class `5specimen` : LinearOpMode() {
         outtakeClaw.position = 0.8
         if (mode != Mode.FIVE) {
             if (mode == Mode.RED) {
-                limelight.updatePythonInputs(doubleArrayOf(0.0))
+                limelight.updatePythonInputs(doubleArrayOf(0.0, 1.0))
             } else {
-                limelight.updatePythonInputs(doubleArrayOf(1.0))
+                limelight.updatePythonInputs(doubleArrayOf(1.0, 1.0))
             }
             var milimetersVertical = 0.0
             var milimetersLateral = 0.0
@@ -266,6 +266,7 @@ class `5specimen` : LinearOpMode() {
             val slideTimer = ElapsedTime()
             var success = false
             var readynt = false
+            val cameraStartPose = follower.pose
             val readyForSlides = Detector()
 
             val pid = PID(0.15,0.0,0.009)
@@ -289,11 +290,19 @@ class `5specimen` : LinearOpMode() {
                 if (fromZero > 180.0) {
                     fromZero = 360 - fromZero
                 }
-
                 if (fromZero < 15.0 || totalTimer.milliseconds() < 500) {
                 } else {
                     leftRGB.position = 0.0
                     break
+                }
+                val right =  if (cameraStartPose.roughlyEquals(follower.pose, 1.0)) 1.0 else 0.0
+                if (right == 0.0) {
+                    rightRGB.position = 0.5
+                }
+                if (mode == Mode.RED) {
+                    limelight.updatePythonInputs(doubleArrayOf(0.0, right))
+                } else {
+                    limelight.updatePythonInputs(doubleArrayOf(1.0, right))
                 }
                 val result: LLResult? = limelight!!.getLatestResult()
                 if (result != null) {
@@ -434,7 +443,7 @@ class `5specimen` : LinearOpMode() {
                     outtake.update(Outtake.state.INTAKING)
                     intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
                 }
-                if (follower.pose.x < 30.0) {
+                if (follower.pose.x < 27.0) {
                     intakeClaw.position = 0.85
                 }
                 update()
