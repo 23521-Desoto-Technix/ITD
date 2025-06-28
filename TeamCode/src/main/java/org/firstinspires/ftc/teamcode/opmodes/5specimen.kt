@@ -42,12 +42,12 @@ class `5specimen` : LinearOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
 
-        val spikeOnePose = Pose(68.0, 22.0, Math.toRadians(0.0))
-        val pushOnePose = Pose(10.0, 22.0, Math.toRadians(0.0))
-        val spikeTwoPose = Pose(53.0, 16.0, Math.toRadians(0.0))
+        val spikeOnePose = Pose(68.0, 24.0, Math.toRadians(0.0))
+        val pushOnePose = Pose(10.0, 24.0, Math.toRadians(0.0))
+        val spikeTwoPose = Pose(53.0, 18.0, Math.toRadians(0.0))
         val pushTwoPose = Pose(20.0, 16.0, Math.toRadians(0.0))
-        val spikeThreePose = Pose(53.0, 8.5, Math.toRadians(0.0))
-        val pushThreePose = Pose(0.0, 8.5, Math.toRadians(0.0))
+        val spikeThreePose = Pose(53.0, 9.3, Math.toRadians(0.0))
+        val pushThreePose = Pose(0.0, 9.3, Math.toRadians(0.0))
 
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(42.0, 70.0, Math.toRadians(0.0))
