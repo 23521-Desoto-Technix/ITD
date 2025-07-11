@@ -42,12 +42,12 @@ class `5specimen` : LinearOpMode() {
         Constants.setConstants(FConstants::class.java, LConstants::class.java)
         val follower = Follower(hardwareMap)
 
-        val spikeOnePose = Pose(68.0, 22.0, Math.toRadians(0.0))
-        val pushOnePose = Pose(10.0, 22.0, Math.toRadians(0.0))
+        val spikeOnePose = Pose(68.0, 23.0, Math.toRadians(0.0))
+        val pushOnePose = Pose(10.0, 25.0, Math.toRadians(0.0))
         val spikeTwoPose = Pose(53.0, 16.0, Math.toRadians(0.0))
         val pushTwoPose = Pose(20.0, 16.0, Math.toRadians(0.0))
-        val spikeThreePose = Pose(53.0, 8.5, Math.toRadians(0.0))
-        val pushThreePose = Pose(0.0, 8.5, Math.toRadians(0.0))
+        val spikeThreePose = Pose(53.0, 9.5, Math.toRadians(0.0))
+        val pushThreePose = Pose(0.0, 9.0, Math.toRadians(0.0))
 
         val startPose = Pose(6.0, 66.0, Math.toRadians(0.0))
         val scorePose = Pose(42.0, 70.0, Math.toRadians(0.0))
@@ -145,7 +145,7 @@ class `5specimen` : LinearOpMode() {
             .addPath(
                 BezierCurve(
                     Pose(10.0, 22.0, Math.toRadians(0.0)),
-                    spikeOnePose,
+                    Pose(68.0, 27.0, Math.toRadians(0.0)),
                     spikeTwoPose
                 )
             )
@@ -212,6 +212,10 @@ class `5specimen` : LinearOpMode() {
         follower.followPath(path1)
 
         while (opModeInInit()) {
+            if (gamepad1.triangle) {
+                rightRGB.position = 0.333
+                limelight.deleteSnapshots()
+            }
             if (gamepad1.dpad_up) {
                 mode = Mode.RED
             }
@@ -272,11 +276,17 @@ class `5specimen` : LinearOpMode() {
             val pid = PID(0.15,0.0,0.009)
 
             val totalTimer = ElapsedTime()
+            val everRight = false
             totalTimer.reset()
             val stableLateralTimer = ElapsedTime()
             stableLateralTimer.reset()
             follower.breakFollowing()
             follower.setMaxPower(0.0)
+            if (mode == Mode.RED) {
+                limelight.captureSnapshot("auto_red_start")
+            } else {
+                limelight.captureSnapshot("auto_blue_start")
+            }
             while (!isStopRequested) {
                 telemetry.update()
                 if (totalTimer.milliseconds() > 4000) {
@@ -296,8 +306,13 @@ class `5specimen` : LinearOpMode() {
                     break
                 }
                 val right =  if (cameraStartPose.roughlyEquals(follower.pose, 1.0)) 1.0 else 0.0
-                if (right == 0.0) {
+                if (right == 0.0 && !everRight) {
                     rightRGB.position = 0.5
+                    if (mode == Mode.RED) {
+                        limelight.captureSnapshot("auto_red_move")
+                    } else {
+                        limelight.captureSnapshot("auto_blue_move")
+                    }
                 }
                 if (mode == Mode.RED) {
                     limelight.updatePythonInputs(doubleArrayOf(0.0, right))
@@ -405,6 +420,11 @@ class `5specimen` : LinearOpMode() {
                     rightRear?.power = 0.1
                     val ticks = 8192.0 * (milimetersVertical / 125.6)
                     if (ticks != 0.0) {
+                        if (mode == Mode.RED) {
+                            limelight.captureSnapshot("auto_red_before_slides")
+                        } else {
+                            limelight.captureSnapshot("auto_blue_before_slides")
+                        }
                         hslides.setSetpoint(-9_000.0 - ticks)
                         grabTimer.reset()
                         intake.update(Intake.state.SCANNING)
@@ -419,6 +439,11 @@ class `5specimen` : LinearOpMode() {
                 if (grabTimer.milliseconds() > 600 && dived && !grabbed && out) {
                     grabbed = true
                     intakeClaw.position = 0.34
+                    if (mode == Mode.RED) {
+                        limelight.captureSnapshot("auto_red_grab")
+                    } else {
+                        limelight.captureSnapshot("auto_blue_grab")
+                    }
                 }
                 if (grabTimer.milliseconds() > 900 && dived && out) {
                     intake.update(Intake.state.OUT)
@@ -443,7 +468,7 @@ class `5specimen` : LinearOpMode() {
                     outtake.update(Outtake.state.INTAKING)
                     intake.update(Intake.state.PASSTHROUGH_OUTSIDE)
                 }
-                if (follower.pose.x < 27.0) {
+                if (follower.pose.x < 22.0) {
                     intakeClaw.position = 0.85
                 }
                 update()
@@ -538,7 +563,10 @@ class `5specimen` : LinearOpMode() {
         }
         outtakeClaw.position = 0.8
         var counter = 0
-        val max = 4
+        var max = 4
+        if (mode == Mode.FIVE) {
+            max = 5
+        }
         while (!isStopRequested) {
             counter += 1
             follower.followPath(pick)
